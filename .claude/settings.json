@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Edit(src/**)",
+      "Edit(tests/**)",
+      "Write(src/**)",
+      "Bash(npm run test:*)",
+      "Bash(npm run lint)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:github.com)"
+    ],
+    "ask": ["Bash(git push:*)"],
+    "deny": ["Read(./.env)", "Read(./.env.*)", "Read(./secrets/**)", "Read(./dist)"],
+    "additionalDirectories": ["../docs/"]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "terminal-notifier -message \"Claude Code Finished\" -sound default"
+          }
+        ]
+      }
+    ]
+  }
+}
