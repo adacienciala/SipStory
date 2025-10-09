@@ -1,8 +1,45 @@
 ---
-import Welcome from "../components/Welcome.astro";
+import GetStartedButton from "../components/GetStartedButton.tsx";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="SipStory - Track every sip, tell every story">
+  <div class="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full space-y-12 py-12">
+      {/* Hero */}
+      <div class="text-center space-y-4">
+        <img src="/logo.png" alt="SipStory Logo" class="w-32 h-32 mx-auto mb-4" />
+        <h1 class="text-6xl font-serif text-emerald-900">SipStory</h1>
+        <p class="text-xl text-stone-600 font-light">Track every sip, tell every story</p>
+      </div>
+
+      {/* Description */}
+      <p class="text-center text-stone-700 leading-relaxed text-base px-6">
+        A quiet space for your matcha moments. Document the brands you've tried, the flavors you've discovered, and the
+        memories you've made along the way.
+      </p>
+
+      {/* Simple feature list */}
+      <div class="space-y-3 max-w-md mx-auto">
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">🍵</span>
+          <p class="text-stone-700 pt-1">Keep a tasting journal</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">⭐</span>
+          <p class="text-stone-700 pt-1">Rate and review your favorite brands</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-2xl">📖</span>
+          <p class="text-stone-700 pt-1">Build your personal collection database</p>
+        </div>
+      </div>
+
+      {/* CTA */}
+      <div class="text-center space-y-4 pt-6">
+        <GetStartedButton client:load />
+        <p class="text-sm text-stone-500">Coming soon</p>
+      </div>
+    </div>
+  </div>
 </Layout>
