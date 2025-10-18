@@ -1,94 +1,196 @@
-# 10x Astro Starter
+# SipStory
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+> A specialized, personal matcha tasting journal for tracking, comparing, and learning from your premium matcha experiences.
+
+## Table of Contents
+
+1. [Project Name](#sipstory)
+2. [Project Description](#project-description)
+3. [Tech Stack](#tech-stack)
+4. [Getting Started Locally](#getting-started-locally)
+5. [Available Scripts](#available-scripts)
+6. [Project Scope](#project-scope)
+7. [Project Status](#project-status)
+8. [License](#license)
+
+## Project Description
+
+Matcha enthusiasts investing in premium products often lack a structured, dedicated tool to record nuanced tasting details (umami depth, foam quality, sweetness vs bitterness). General note or tea apps miss matcha-specific attributes, making it hard to remember which expensive blends are worth reordering. SipStory solves this by providing an authenticated, private web application where users:
+
+- Log detailed tasting notes with both required and optional structured fields.
+- Maintain consistency via autocomplete suggestion of previously used Brands, Blends, and Regions.
+- Filter and sort entries to rapidly locate high-quality tastings.
+- Compare any two tastings side-by-side for direct evaluation.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+| Layer                | Technology                                      | Purpose / Notes                                       |
+| -------------------- | ----------------------------------------------- | ----------------------------------------------------- |
+| Framework            | Astro 5 (`astro@^5.13.7`)                       | Hybrid rendering, performance-first, server endpoints |
+| UI Library           | React 19 (`react@^19.1.1`)                      | Interactive components where needed                   |
+| Styling              | Tailwind CSS 4 (`tailwindcss@^4.1.13`)          | Utility-first responsive styling                      |
+| Component Primitives | Shadcn/ui + Radix (`@radix-ui/react-slot`)      | Accessible, composable UI foundations                 |
+| Backend & Auth       | Supabase                                        | PostgreSQL + Auth (email/password)                    |
+| Tooling              | TypeScript 5, ESLint 9, Prettier + Astro plugin | Quality, consistency                                  |
+| Deployment           | DigitalOcean (Docker)                           | Containerized hosting target                          |
+| CI/CD                | GitHub Actions                                  | Automated build, lint, (future) tests                 |
 
-## Prerequisites
+Runtime Node version: see `.nvmrc`.
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+## Getting Started Locally
 
-## Getting Started
+### Prerequisites
 
-1. Clone the repository:
+- Node.js (use `nvm` for version management)
+- npm (bundled with Node) or alternative (pnpm/yarn) if preferred
+- A Supabase project (for Auth & DB)
+
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
+git clone <repository-url>
+cd SipStory
 ```
 
-2. Install dependencies:
+### 2. Use the correct Node version
+
+```bash
+nvm install
+nvm use
+```
+
+### 3. Install dependencies
 
 ```bash
 npm install
 ```
 
-3. Run the development server:
+### 4. Configure environment variables
+
+Create `src/env.d.ts` entries (already scaffolded) and a `.env` file:
+
+```bash
+cp .env.example .env
+```
+
+Reference via `import.meta.env.PUBLIC_SUPABASE_URL` inside Astro/React components or server endpoints.
+
+### 5. Run the development server
 
 ```bash
 npm run dev
 ```
 
-4. Build for production:
+Access the app at the printed local URL (default: `http://localhost:3000`).
+
+### 6. Lint & Format (optional during development)
+
+```bash
+npm run lint
+npm run format
+```
+
+### 7. Build for production
 
 ```bash
 npm run build
 ```
 
-## Available Scripts
+Preview the production build:
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-
-## Project Structure
-
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
+```bash
+npm run preview
 ```
 
-## AI Development Support
+### 8. Docker & Deployment
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+A Dockerfile and GitHub Actions workflow will be added to build and push an image deployable to DigitalOcean.
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+```bash
+docker build -t sipstory:latest .
+docker run -p 8080:8080 sipstory:latest
+```
 
-### Cursor IDE
+### 9. Shadcn/ui Components
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+Components will reside under `src/components/ui`. Generate new components using the project’s helper scripts (to be added). Follow accessibility guidelines (ARIA attributes, focus management).
 
-### GitHub Copilot
+### 10. Tailwind CSS
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
+Global styles: `src/styles/global.css`. Use arbitrary values for one-offs and responsive variants (`sm: md: lg:`). Prefer semantic component abstractions + variant utilities.
 
-### Windsurf
+## Available Scripts
 
-The `.windsurfrules` file contains AI configuration for Windsurf.
+| Script   | Command              | Purpose                        |
+| -------- | -------------------- | ------------------------------ |
+| dev      | `astro dev`          | Start local development server |
+| build    | `astro build`        | Production build               |
+| preview  | `astro preview`      | Preview built site locally     |
+| astro    | `astro`              | Direct Astro CLI access        |
+| lint     | `eslint .`           | Run linter                     |
+| lint:fix | `eslint . --fix`     | Auto-fix lint issues           |
+| format   | `prettier --write .` | Format codebase                |
 
-## Contributing
+## Project Scope
 
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+### In Scope (MVP)
+
+- Supabase email/password authentication & protected routes.
+- Mandatory onboarding screen on first login.
+- Full CRUD for tasting notes with structured matcha-specific fields.
+- Side-by-side comparison view for any two user notes.
+- Filtering by Brand, Region, Minimum Rating.
+- Autocomplete suggestions based on user’s own historical entries.
+- Responsive UI (mobile ~390px, desktop ~1440px).
+- CI/CD pipeline (build + lint + E2E tests) via GitHub Actions.
+- Deployment to publicly accessible URL (DigitalOcean target).
+
+### Out of Scope (MVP)
+
+- Image/photo uploads.
+- Community sharing, messaging, or public profiles.
+- Central moderation of master Brand/Blend lists.
+- Advanced trackers (availability, price/value trend, seasonal origin insights, cafés, inventory, swap network).
+- Native mobile apps (iOS/Android).
+- Third-party retailer or external API integrations.
+
+## Project Status
+
+Current Phase: Early scaffolding (Astro + React + Tailwind + linting setup). Data layer & Supabase integration pending.
+Planned Next Steps:
+
+- Implement Supabase client & auth flow.
+- Create onboarding screen component + logic (first-login flag).
+- Define tasting note schema & DB migrations.
+- Build CRUD API endpoints & UI forms with validation.
+- Add comparison and filtering interfaces.
+- Introduce autocomplete service querying user-specific history.
+- Add E2E test framework (Playwright or Cypress) + required flows.
+- Create CI workflow (lint, build, tests) & deployment pipeline.
+
+Target Launch Date: **November 16, 2025**
 
 ## License
 
-MIT
+MIT License (to be confirmed). If a different license is chosen, update this section and badge.
+
+```
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```
+
+---
+
+Need clarifications or want to contribute? Open an issue or submit a pull request.
