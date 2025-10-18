@@ -1,125 +1,174 @@
-# CLAUDE.md
+# Claude Code Rules for SipStory (MVP)
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Main Problem
 
-## Project Overview
+Matcha enthusiasts in Europe lack a specialized tool for systematically documenting their tastings. Existing general-purpose tea apps don't capture matcha-specific characteristics like color, foam quality, and umami. Consequently, users struggle to track which expensive brands are worth the price, making it difficult to avoid low-quality products. SipStory aims to solve this by providing a dedicated platform for personal tasting notes and brand comparison.
 
-**SipStory** - A matcha tasting journal web application for enthusiasts to rate brands and document their experiences. 
+## Functional Requirements (MVP)
 
-**Tagline:** Track every sip, tell every story
+### 1. User Access & Onboarding
 
-## Tech Stack
+- **Authentication:** User registration, login, and password management will be handled by **Supabase Auth**.
+- **Protected Routes:** Only authenticated users can access, create, or manage tasting notes.
+- **Onboarding:** A single, mandatory onboarding screen for first-time users will explain key tasting concepts (e.g., umami, bitterness) and guide them on how to log an entry.
 
-- **Astro v5** - SSR-enabled metaframework (output: "server", adapter: node standalone)
-- **React v19** - For interactive UI components only
-- **TypeScript v5** - Strict mode enabled
-- **Tailwind CSS v4** - Utility-first styling via Vite plugin
-- **Shadcn/ui** - Accessible component library (New York style, neutral base color)
-- **Supabase** - Backend services (auth, database)
+### 2. Core Tasting Notes (CRUD)
 
-## Development Commands
+The app will provide full **Create, Read, Update, and Delete (CRUD)** functionality for personal tasting notes.
 
-```bash
-npm run dev          # Start dev server on port 3000
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint
-npm run lint:fix     # Auto-fix ESLint issues
-npm run format       # Format code with Prettier
-```
+- **Create:** A form to add a new tasting entry.
+  - **Mandatory Fields:** Matcha Brand, Matcha Blend, Overall Rating (1-5 stars).
+  - **Optional Fields:**
+    - Region of Origin (text field with autocomplete from user's history).
+    - Structured Ratings (1-5 dots for `Umami`, `Bitter`, `Sweet`, `Foam Quality`).
+    - Tasting Notes ("Notes as Koicha" and "Notes with Milk" in separate text fields).
+    - Price Paid per 100g (in PLN).
+    - Purchase Location/Source (text field for URL or shop name).
+- **Read:**
+  - A dashboard view listing all personal tastings, sorted chronologically by default.
+  - A detailed view for each individual tasting note.
+- **Update:** Users can edit all fields of an existing tasting entry.
+- **Delete:** Users can permanently delete a tasting entry.
 
-**Node version:** v22.14.0 (see `.nvmrc`)
+### 3. Key Features
+
+- **Side-by-Side Comparison:** Users can select any two of their personal tasting entries via a dedicated icon. A new view will display the selected entries in a two-column layout for direct comparison.
+- **Filtering & Sorting:** The main tasting list can be filtered by:
+  - Matcha Brand (select from a list of user's entered brands).
+  - Region (select from a list of user's entered regions).
+  - Minimum Star Rating (e.g., show all tastings >= 4 stars).
+- **Input Assistance:** The "Brand", "Blend", and "Region" fields will feature an autocomplete function, suggesting values from the user's own past entries to ensure data consistency.
+
+## Technical Requirements
+
+- **Tech Stack:**
+  - **Framework:** Astro
+  - **UI:** React, TypeScript, Tailwind CSS, Shadcn/ui
+  - **Backend & Auth:** Supabase
+- **Platform:** A responsive web interface, optimized for both mobile (e.g., 390px width) and desktop (e.g., 1440px width) viewports.
+- **CI/CD Pipeline:** An automated pipeline for building and testing is required. It must include three end-to-end (E2E) tests covering the critical user flows:
+  1.  Login -> Create a new tasting.
+  2.  Get a tasting -> Edit the tasting.
+  3.  Get a tasting -> Delete the tasting.
+- **Deployment:** The application must be deployed to a public URL.
+
+## What's NOT in MVP Scope
+
+- **Photo Uploads:** The ability for users to upload photos with their tasting notes is deferred.
+- **Admin Moderation:** A centralized system for moderating the master list of brands and blends is not included.
+- **Community Features:** No community forums, messaging, or sharing of tasting notes between users.
+- **Advanced Features:** Matcha availability trackers, sample swap networks, café maps, and inventory management are out of scope.
+- **Native Mobile Apps:** No iOS or Android apps will be developed for the MVP.
+- **Integrations:** No third-party API partnerships or retailer integrations.
+
+## Success Criteria & KPIs
+
+- **Launch Date:** The target launch date for the MVP is **November 16th, 2025**.
+- **User Adoption:** Achieve a **10% user acquisition rate** from a dedicated link on the owner's TikTok profile within one month post-launch.
+- **Database Growth:** The database should contain at least **10 unique brand-blend combinations** submitted by the user base within one month post-launch.
 
 ## Project Structure
 
-```
-src/
-├── layouts/          # Astro layouts
-├── pages/            # Astro pages (file-based routing)
-│   └── api/          # API endpoints (POST, GET handlers)
-├── middleware/       # Astro middleware (index.ts)
-├── components/       # UI components
-│   ├── ui/           # Shadcn/ui components (@/components/ui)
-│   └── hooks/        # Custom React hooks
-├── lib/              # Services and helpers
-├── db/               # Supabase clients and types
-├── types.ts          # Shared types (Entities, DTOs)
-├── assets/           # Internal static assets
-└── styles/           # Global CSS (global.css for Tailwind)
-```
+When introducing changes to the project, always follow the directory structure below:
 
-**Import aliases** (configured in tsconfig.json):
-- `@/*` maps to `./src/*`
+- `./src` - source code
+- `./src/layouts` - Astro layouts
+- `./src/pages` - Astro pages
+- `./src/pages/api` - API endpoints
+- `./src/middleware/index.ts` - Astro middleware
+- `./src/db` - Supabase clients and types
+- `./src/types.ts` - Shared types for backend and frontend (Entities, DTOs)
+- `./src/components` - Client-side components written in Astro (static) and React (dynamic)
+- `./src/components/ui` - Client-side components from Shadcn/ui
+- `./src/lib` - Services and helpers
+- `./src/assets` - static internal assets
+- `./public` - public assets
 
-## Architecture Patterns
+When modifying the directory structure, always update this section.
 
-### Component Strategy
-- **Astro components** (.astro) for static content and layouts
-- **React components** (.tsx) only when interactivity is needed
-- Never use "use client" or Next.js directives (React is used with Astro)
+## Coding practices
 
-### API Routes
-- Use uppercase HTTP methods: `export async function POST(context) {}`
-- Add `export const prerender = false` for SSR API routes
-- Validate input with Zod schemas
-- Extract business logic to services in `src/lib/services`
+### Guidelines for clean code
 
-### Supabase Integration
-- Access Supabase via `context.locals.supabase` in Astro routes (not direct imports)
-- Use `SupabaseClient` type from `src/db/supabase.client.ts`, not from `@supabase/supabase-js`
-- Implement middleware in `src/middleware/index.ts` for auth/request handling
+- Use feedback from linters to improve the code when making changes.
+- Prioritize error handling and edge cases.
+- Handle errors and edge cases at the beginning of functions.
+- Use early returns for error conditions to avoid deeply nested if statements.
+- Place the happy path last in the function for improved readability.
+- Avoid unnecessary else statements; use if-return pattern instead.
+- Use guard clauses to handle preconditions and invalid states early.
+- Implement proper error logging and user-friendly error messages.
+- Consider using custom error types or error factories for consistent error handling.
 
-### Styling
-- Use Tailwind utility classes
-- Combine classes with `cn()` helper from `@/lib/utils`
-- Shadcn components use CSS variables for theming (see `components.json`)
-- Add new Shadcn components: `npx shadcn@latest add [component-name]`
+## Frontend
 
-### Error Handling
-- Handle errors and edge cases at the beginning of functions
-- Use early returns for error conditions
-- Place happy path last for readability
-- Avoid unnecessary else statements
-- Implement proper error logging and user-friendly messages
+### General Guidelines
 
-### React Best Practices
-- Use functional components with hooks
+- Use Astro components (.astro) for static content and layout
+- Implement framework components in React only when interactivity is needed
+
+### Guidelines for Styling
+
+#### Tailwind
+
+- Use the @layer directive to organize styles into components, utilities, and base layers
+- Use arbitrary values with square brackets (e.g., w-[123px]) for precise one-off designs
+- Implement the Tailwind configuration file for customizing theme, plugins, and variants
+- Leverage the theme() function in CSS for accessing Tailwind theme values
+- Implement dark mode with the dark: variant
+- Use responsive variants (sm:, md:, lg:, etc.) for adaptive designs
+- Leverage state variants (hover:, focus-visible:, active:, etc.) for interactive elements
+
+### Guidelines for Accessibility
+
+#### ARIA Best Practices
+
+- Use ARIA landmarks to identify regions of the page (main, navigation, search, etc.)
+- Apply appropriate ARIA roles to custom interface elements that lack semantic HTML equivalents
+- Set aria-expanded and aria-controls for expandable content like accordions and dropdowns
+- Use aria-live regions with appropriate politeness settings for dynamic content updates
+- Implement aria-hidden to hide decorative or duplicative content from screen readers
+- Apply aria-label or aria-labelledby for elements without visible text labels
+- Use aria-describedby to associate descriptive text with form inputs or complex elements
+- Implement aria-current for indicating the current item in a set, navigation, or process
+- Avoid redundant ARIA that duplicates the semantics of native HTML elements
+
+### Guidelines for Astro
+
+- Leverage View Transitions API for smooth page transitions (use ClientRouter)
+- Use content collections with type safety for blog posts, documentation, etc.
+- Leverage Server Endpoints for API routes
+- Use POST, GET - uppercase format for endpoint handlers
+- Use `export const prerender = false` for API routes
+- Use zod for input validation in API routes
+- Extract logic into services in `src/lib/services`
+- Implement middleware for request/response modification
+- Use image optimization with the Astro Image integration
+- Implement hybrid rendering with server-side rendering where needed
+- Use Astro.cookies for server-side cookie management
+- Leverage import.meta.env for environment variables
+
+### Guidelines for React
+
+- Use functional components with hooks instead of class components
+- Never use "use client" and other Next.js directives as we use React with Astro
 - Extract logic into custom hooks in `src/components/hooks`
-- Use `React.memo()` for expensive components
-- Use `useCallback` for event handlers passed to children
-- Use `useMemo` for expensive calculations
-- Use `useId()` for accessibility IDs
+- Implement React.memo() for expensive components that render often with the same props
+- Utilize React.lazy() and Suspense for code-splitting and performance optimization
+- Use the useCallback hook for event handlers passed to child components to prevent unnecessary re-renders
+- Prefer useMemo for expensive calculations to avoid recomputation on every render
+- Implement useId() for generating unique IDs for accessibility attributes
+- Consider using the new useOptimistic hook for optimistic UI updates in forms
+- Use useTransition for non-urgent state updates to keep the UI responsive
 
-### Astro-Specific
-- Leverage View Transitions API for smooth page transitions
-- Use `Astro.cookies` for server-side cookie management
-- Use `import.meta.env` for environment variables
-- Implement hybrid rendering with `export const prerender = false` where needed
+### Backend and Database
 
-### Accessibility
-- Use semantic HTML and ARIA landmarks
-- Set `aria-expanded`, `aria-controls` for expandable content
-- Use `aria-live` regions for dynamic updates
-- Apply `aria-label`/`aria-labelledby` for unlabeled elements
-- Avoid redundant ARIA that duplicates native semantics
+- Use Supabase for backend services, including authentication and database interactions.
+- Follow Supabase guidelines for security and performance.
+- Use Zod schemas to validate data exchanged with the backend.
+- Use supabase from context.locals in Astro routes instead of importing supabaseClient directly
+- Use SupabaseClient type from `src/db/supabase.client.ts`, not from `@supabase/supabase-js`
 
-## Code Quality
+## Communication style
 
-- **Linting:** ESLint v9 with Astro, React, TypeScript, and Prettier plugins
-- **Pre-commit:** Husky + lint-staged auto-fixes on commit
-- **Formatting:** Prettier with astro plugin
-
-Files auto-fixed on commit:
-- `*.{ts,tsx,astro}` → ESLint fix
-- `*.{json,css,md}` → Prettier format
-
-## MVP Features 
-
-1. **User Authentication** - Registration, login, secure password handling
-2. **CRUD Operations** - Create, read, update, delete tasting notes
-3. **Core Data Models:**
-   - Users (authentication)
-   - Tasting Notes/Entries (brand, date, rating, flavor notes, preparation, photos, price, source)
-   - Matcha Brands (reference data)
-
-See `PROJECT_BRIEF.md` for complete feature roadmap and future expansion plans.
+Always adress me at the beginning of the message as "My dear" and treat me with kindness and patience.
