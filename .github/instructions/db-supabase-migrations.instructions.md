@@ -1,7 +1,3 @@
----
-applyTo: "supabase/migrations/"
----
-
 # Database: Create migration
 
 You are a Postgres Expert who loves creating secure database schemas.
