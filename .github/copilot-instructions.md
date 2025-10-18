@@ -1,14 +1,71 @@
-# AI Rules for {{project-name}}
+# AI Rules for SipStory
 
-{{project-description}}
+## Main Problem
 
-## Tech Stack
+Matcha enthusiasts in Europe lack a specialized tool for systematically documenting their tastings. Existing general-purpose tea apps don't capture matcha-specific characteristics like color, foam quality, and umami. Consequently, users struggle to track which expensive brands are worth the price, making it difficult to avoid low-quality products. SipStory aims to solve this by providing a dedicated platform for personal tasting notes and brand comparison.
 
-- Astro 5
-- TypeScript 5
-- React 19
-- Tailwind 4
-- Shadcn/ui
+## Functional Requirements (MVP)
+
+### 1. User Access & Onboarding
+
+- **Authentication:** User registration, login, and password management will be handled by **Supabase Auth**.
+- **Protected Routes:** Only authenticated users can access, create, or manage tasting notes.
+- **Onboarding:** A single, mandatory onboarding screen for first-time users will explain key tasting concepts (e.g., umami, bitterness) and guide them on how to log an entry.
+
+### 2. Core Tasting Notes (CRUD)
+
+The app will provide full **Create, Read, Update, and Delete (CRUD)** functionality for personal tasting notes.
+
+- **Create:** A form to add a new tasting entry.
+  - **Mandatory Fields:** Matcha Brand, Matcha Blend, Overall Rating (1-5 stars).
+  - **Optional Fields:**
+    - Region of Origin (text field with autocomplete from user's history).
+    - Structured Ratings (1-5 dots for `Umami`, `Bitter`, `Sweet`, `Foam Quality`).
+    - Tasting Notes ("Notes as Koicha" and "Notes with Milk" in separate text fields).
+    - Price Paid per 100g (in PLN).
+    - Purchase Location/Source (text field for URL or shop name).
+- **Read:**
+  - A dashboard view listing all personal tastings, sorted chronologically by default.
+  - A detailed view for each individual tasting note.
+- **Update:** Users can edit all fields of an existing tasting entry.
+- **Delete:** Users can permanently delete a tasting entry.
+
+### 3. Key Features
+
+- **Side-by-Side Comparison:** Users can select any two of their personal tasting entries via a dedicated icon. A new view will display the selected entries in a two-column layout for direct comparison.
+- **Filtering & Sorting:** The main tasting list can be filtered by:
+  - Matcha Brand (select from a list of user's entered brands).
+  - Region (select from a list of user's entered regions).
+  - Minimum Star Rating (e.g., show all tastings >= 4 stars).
+- **Input Assistance:** The "Brand", "Blend", and "Region" fields will feature an autocomplete function, suggesting values from the user's own past entries to ensure data consistency.
+
+## Technical Requirements
+
+- **Tech Stack:**
+  - **Framework:** Astro
+  - **UI:** React, TypeScript, Tailwind CSS, Shadcn/ui
+  - **Backend & Auth:** Supabase
+- **Platform:** A responsive web interface, optimized for both mobile (e.g., 390px width) and desktop (e.g., 1440px width) viewports.
+- **CI/CD Pipeline:** An automated pipeline for building and testing is required. It must include three end-to-end (E2E) tests covering the critical user flows:
+  1.  Login -> Create a new tasting.
+  2.  Get a tasting -> Edit the tasting.
+  3.  Get a tasting -> Delete the tasting.
+- **Deployment:** The application must be deployed to a public URL.
+
+## What's NOT in MVP Scope
+
+- **Photo Uploads:** The ability for users to upload photos with their tasting notes is deferred.
+- **Admin Moderation:** A centralized system for moderating the master list of brands and blends is not included.
+- **Community Features:** No community forums, messaging, or sharing of tasting notes between users.
+- **Advanced Features:** Matcha availability trackers, sample swap networks, café maps, and inventory management are out of scope.
+- **Native Mobile Apps:** No iOS or Android apps will be developed for the MVP.
+- **Integrations:** No third-party API partnerships or retailer integrations.
+
+## Success Criteria & KPIs
+
+- **Launch Date:** The target launch date for the MVP is **November 16th, 2025**.
+- **User Adoption:** Achieve a **10% user acquisition rate** from a dedicated link on the owner's TikTok profile within one month post-launch.
+- **Database Growth:** The database should contain at least **10 unique brand-blend combinations** submitted by the user base within one month post-launch.
 
 ## Project Structure
 
@@ -81,7 +138,7 @@ When modifying the directory structure, always update this section.
 - Leverage View Transitions API for smooth page transitions (use ClientRouter)
 - Use content collections with type safety for blog posts, documentation, etc.
 - Leverage Server Endpoints for API routes
-- Use POST, GET  - uppercase format for endpoint handlers
+- Use POST, GET - uppercase format for endpoint handlers
 - Use `export const prerender = false` for API routes
 - Use zod for input validation in API routes
 - Extract logic into services in `src/lib/services`
