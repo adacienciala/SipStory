@@ -69,7 +69,7 @@ User-specific tasting notes referencing global blends.
 | foam            | SMALLINT    | CHECK (foam IS NULL OR foam BETWEEN 1 AND 5)         | Optional foam quality rating (1-5 dots)        |
 | notes_koicha    | TEXT        |                                                      | Optional tasting notes when prepared as koicha |
 | notes_milk      | TEXT        |                                                      | Optional tasting notes when prepared with milk |
-| price_grosze    | INTEGER     | CHECK (price_grosze IS NULL OR price_grosze >= 0)    | Optional price per 100g in grosze (PLN × 100)  |
+| price_pln       | INTEGER     | CHECK (price_pln IS NULL OR price_pln >= 0)          | Optional price per 100g in PLN (full zloty)    |
 | purchase_source | TEXT        |                                                      | Optional purchase location or URL              |
 | created_at      | TIMESTAMPTZ | NOT NULL DEFAULT now()                               | Timestamp when note was created                |
 | updated_at      | TIMESTAMPTZ | NOT NULL DEFAULT now()                               | Timestamp when note was last updated           |
@@ -78,7 +78,7 @@ User-specific tasting notes referencing global blends.
 
 - User isolation enforced via RLS policies
 - Only blend_id is stored; brand and region are derived via joins
-- Price stored as INTEGER in smallest currency unit (grosze) to avoid floating-point issues
+- Price stored as INTEGER in full zloty (PLN) with no decimal places
 - ON DELETE CASCADE for user_id ensures cleanup when user account is deleted
 - ON DELETE RESTRICT for blend_id prevents accidental data loss
 - updated_at automatically managed via database trigger
@@ -146,7 +146,7 @@ User authentication table managed by Supabase Auth. This table is part of the `a
 │ - foam                │
 │ - notes_koicha        │
 │ - notes_milk          │
-│ - price_grosze        │
+│ - price_pln           │
 │ - purchase_source     │
 │ - created_at          │
 │ - updated_at          │
@@ -369,14 +369,14 @@ Decision deferred to implementation phase based on performance testing and clean
 
 ### 6.3 Price Storage
 
-**Decision:** Store price as INTEGER in grosze (PLN × 100).
+**Decision:** Store price as INTEGER in full zloty (PLN).
 
 **Rationale:**
 
 - Avoids floating-point precision errors
-- Simplifies monetary calculations
-- Industry best practice for financial data
-- Easy conversion to display format (grosze / 100 = PLN)
+- Simplifies monetary calculations and data entry
+- Users typically think in whole zloty amounts for matcha prices
+- Sufficient precision for the price range of matcha products per 100g
 
 ### 6.4 Foreign Key Strategy
 

@@ -105,7 +105,7 @@ export interface Database {
           notes_koicha: string | null;
           notes_milk: string | null;
           overall_rating: number;
-          price_grosze: number | null;
+          price_pln: number | null;
           purchase_source: string | null;
           sweet: number | null;
           umami: number | null;
@@ -121,7 +121,7 @@ export interface Database {
           notes_koicha?: string | null;
           notes_milk?: string | null;
           overall_rating: number;
-          price_grosze?: number | null;
+          price_pln?: number | null;
           purchase_source?: string | null;
           sweet?: number | null;
           umami?: number | null;
@@ -137,7 +137,7 @@ export interface Database {
           notes_koicha?: string | null;
           notes_milk?: string | null;
           overall_rating?: number;
-          price_grosze?: number | null;
+          price_pln?: number | null;
           purchase_source?: string | null;
           sweet?: number | null;
           umami?: number | null;

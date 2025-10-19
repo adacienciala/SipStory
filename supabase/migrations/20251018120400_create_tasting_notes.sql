@@ -4,7 +4,7 @@
 -- considerations:
 --   - user isolation enforced via rls policies
 --   - only blend_id is stored; brand and region are derived via joins
---   - price stored as integer in smallest currency unit (grosze) to avoid floating-point issues
+--   - price stored as integer in full zloty (PLN) with no decimal places
 --   - on delete cascade for user_id ensures cleanup when user account is deleted
 --   - on delete restrict for blend_id prevents accidental data loss
 --   - updated_at automatically managed via database trigger (created in separate migration)
@@ -24,8 +24,8 @@ create table tasting_notes (
     -- optional tasting notes for different preparation methods
     notes_koicha text,
     notes_milk text,
-    -- optional price per 100g in grosze (pln × 100)
-    price_grosze integer check (price_grosze is null or price_grosze >= 0),
+    -- optional price per 100g in PLN (full zloty)
+    price_pln integer check (price_pln is null or price_pln >= 0),
     -- optional purchase location or url
     purchase_source text,
     -- timestamps
