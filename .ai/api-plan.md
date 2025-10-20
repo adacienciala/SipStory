@@ -374,11 +374,11 @@ No body returned
 
 ---
 
-#### 2.1.6. Compare Tasting Notes
+#### 2.1.6. Select Tasting Notes
 
 **HTTP Method:** `GET`  
 **URL Path:** `/api/tasting-notes`  
-**Description:** Retrieve two specific tasting notes for side-by-side comparison  
+**Description:** Retrieve two specific tasting notes
 **Authentication:** Required (Bearer token)
 
 **Query Parameters:**
@@ -437,7 +437,7 @@ No body returned
 - **400 Bad Request:** Invalid number of IDs
   ```json
   {
-    "error": "Exactly 2 tasting note IDs are required for comparison"
+    "error": "Exactly 2 tasting note IDs are required"
   }
   ```
 - **404 Not Found:** One or both notes don't exist
@@ -1164,7 +1164,6 @@ Additional API tests should include:
 2. Implement authentication endpoints (sign up, sign in, sign out, refresh)
 3. Implement tasting notes CRUD endpoints
 4. Implement filtering and sorting for tasting notes list
-5. Implement comparison endpoint
 
 ### Phase 2: Global Resources & Autocomplete (MVP Critical)
 
