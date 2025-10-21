@@ -377,7 +377,7 @@ No body returned
 #### 2.1.6. Select Tasting Notes
 
 **HTTP Method:** `GET`  
-**URL Path:** `/api/tasting-notes`  
+**URL Path:** `/api/tasting-notes/select`  
 **Description:** Retrieve two specific tasting notes
 **Authentication:** Required (Bearer token)
 
@@ -980,7 +980,7 @@ export const CreateTastingNoteSchema = z.object({
   foam: z.number().int().min(1).max(5).nullable().optional(),
   notes_koicha: z.string().max(5000).nullable().optional(),
   notes_milk: z.string().max(5000).nullable().optional(),
-  price_pln: z.number().min(0).multipleOf(0.01).nullable().optional(),
+  price_pln: z.number().int().min(0).nullable().optional(),
   purchase_source: z.string().max(500).nullable().optional(),
 });
 ```
@@ -997,7 +997,7 @@ export const UpdateTastingNoteSchema = z
     foam: z.number().int().min(1).max(5).nullable().optional(),
     notes_koicha: z.string().max(5000).nullable().optional(),
     notes_milk: z.string().max(5000).nullable().optional(),
-    price_pln: z.number().min(0).multipleOf(0.01).nullable().optional(),
+    price_pln: z.number().int().min(0).nullable().optional(),
     purchase_source: z.string().max(500).nullable().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {

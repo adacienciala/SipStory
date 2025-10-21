@@ -19,6 +19,12 @@ on tasting_notes (user_id, created_at desc);
 create index idx_tasting_notes_user_rating 
 on tasting_notes (user_id, overall_rating desc);
 
+-- index: user-scoped filtering by blend and rating
+-- rationale: optimize queries that filter by user and blend with rating sorting
+-- query pattern: select * from tasting_notes where user_id = ? and blend_id = ? order by overall_rating desc
+create index idx_tasting_notes_user_blend_rating
+on tasting_notes (user_id, blend_id, overall_rating desc);
+
 -- index: support for blend-based queries and joins
 -- rationale: optimize queries that filter by blend or join to blend table for brand/region info
 -- query pattern: select * from tasting_notes where blend_id = ?

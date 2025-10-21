@@ -174,9 +174,9 @@ User authentication table managed by Supabase Auth. This table is part of the `a
 These indexes optimize user-specific queries for filtering, sorting, and comparison features.
 
 ```sql
--- User-scoped filtering by brand and rating
-CREATE INDEX idx_tasting_notes_user_brand_rating
-ON tasting_notes (user_id, brand_id, overall_rating DESC);
+-- User-scoped filtering by blend and rating
+CREATE INDEX idx_tasting_notes_user_blend_rating
+ON tasting_notes (user_id, blend_id, overall_rating DESC);
 
 -- User-scoped filtering by overall rating
 CREATE INDEX idx_tasting_notes_user_rating
