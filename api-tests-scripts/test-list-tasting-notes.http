@@ -1,0 +1,48 @@
+### API Endpoint Test Suite
+### GET /api/tasting-notes
+
+@baseUrl = http://localhost:3000/api/tasting-notes
+
+### Test 1: Default parameters (no query params)
+### Expected: 200 OK with mocked data, default pagination (page=1, limit=20)
+GET {{baseUrl}}
+
+### Test 2: Custom pagination (page=2, limit=10)
+### Expected: 200 OK with pagination metadata showing page=2, limit=10
+GET {{baseUrl}}?page=2&limit=10
+
+### Test 3: Filter by brand_ids
+### Expected: 200 OK (currently returns mocked data regardless of filter)
+GET {{baseUrl}}?brand_ids=brand-001
+
+### Test 4: Filter by min_rating
+### Expected: 200 OK (currently returns mocked data regardless of filter)
+GET {{baseUrl}}?min_rating=4
+
+### Test 5: Sort by overall_rating DESC
+### Expected: 200 OK (currently returns mocked data in fixed order)
+GET {{baseUrl}}?sort_by=overall_rating&sort_order=desc
+
+### Test 6: Invalid parameter - page = 0
+### Expected: 400 Bad Request with validation error
+GET {{baseUrl}}?page=0
+
+### Test 7: Invalid parameter - limit > 100
+### Expected: 400 Bad Request with validation error
+GET {{baseUrl}}?limit=150
+
+### Test 8: Invalid parameter - min_rating > 5
+### Expected: 400 Bad Request with validation error
+GET {{baseUrl}}?min_rating=6
+
+### Test 9: Invalid parameter - invalid sort_by
+### Expected: 400 Bad Request with validation error
+GET {{baseUrl}}?sort_by=invalid_field
+
+### Test 10: Invalid parameter - invalid UUID in brand_ids
+### Expected: 400 Bad Request with validation error
+GET {{baseUrl}}?brand_ids=not-a-uuid
+
+### Test 11: Multiple filters combined
+### Expected: 200 OK with mocked data
+GET {{baseUrl}}?brand_ids=brand-001,brand-002&min_rating=3&sort_by=created_at&sort_order=asc&page=1&limit=20

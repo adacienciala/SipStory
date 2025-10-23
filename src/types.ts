@@ -164,6 +164,14 @@ export interface PaginationMetaDTO {
 }
 
 /**
+ * Common pagination query parameters
+ */
+export interface PaginationQueryDTO {
+  page?: number;
+  limit?: number;
+}
+
+/**
  * Generic paginated response wrapper
  */
 export interface PaginatedResponseDTO<T> {
@@ -214,9 +222,7 @@ export interface SelectNotesResponseDTO {
 /**
  * Query parameters for listing tasting notes with filters and sorting
  */
-export interface TastingNotesQueryDTO {
-  page?: number;
-  limit?: number;
+export interface TastingNotesQueryDTO extends PaginationQueryDTO {
   brand_ids?: string[]; // Array of brand UUIDs
   region_ids?: string[]; // Array of region UUIDs
   min_rating?: number; // 1-5
@@ -227,27 +233,21 @@ export interface TastingNotesQueryDTO {
 /**
  * Query parameters for listing brands with search
  */
-export interface BrandsQueryDTO {
-  page?: number;
-  limit?: number;
+export interface BrandsQueryDTO extends PaginationQueryDTO {
   search?: string;
 }
 
 /**
  * Query parameters for listing regions with search
  */
-export interface RegionsQueryDTO {
-  page?: number;
-  limit?: number;
+export interface RegionsQueryDTO extends PaginationQueryDTO {
   search?: string;
 }
 
 /**
  * Query parameters for listing blends with filters and search
  */
-export interface BlendsQueryDTO {
-  page?: number;
-  limit?: number;
+export interface BlendsQueryDTO extends PaginationQueryDTO {
   brand_id?: string;
   region_id?: string;
   search?: string;
