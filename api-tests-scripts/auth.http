@@ -1,0 +1,37 @@
+### Authentication Test Suite
+### Supabase Auth API
+
+@supabaseUrl = {{$dotenv SUPABASE_URL}}
+@supabaseAnonKey = {{$dotenv SUPABASE_KEY}}
+
+### Login - Get access token for test user
+### Run this and copy the access_token to use in other test files
+# @name login
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+Content-Type: application/json
+apikey: {{supabaseAnonKey}}
+
+{
+  "email": "test@test.com",
+  "password": "Test123!"
+}
+
+### Sign Up - Create a new test user (if needed)
+# @name signup
+POST {{supabaseUrl}}/auth/v1/signup
+Content-Type: application/json
+apikey: {{supabaseAnonKey}}
+
+{
+  "email": "test@test.com",
+  "password": "YOUR_TEST_USER_PASSWORD"
+}
+
+### Logout - Sign out the current user
+# @name logout
+POST {{supabaseUrl}}/auth/v1/logout
+Content-Type: application/json
+apikey: {{supabaseAnonKey}}
+Authorization: Bearer YOUR_ACCESS_TOKEN_HERE
+
+{}
