@@ -172,7 +172,7 @@ Content-Type: application/json
 
 ### Test 15: Invalid UUID format in path
 ### Expected: 400 Bad Request - invalid UUID format
-PATCH {{endpointUrl}}/{{invalidUuid}}
+PATCH {{endpointUrl}}/invalid-uuid-format
 Authorization: Bearer {{accessToken}}
 Content-Type: application/json
 
