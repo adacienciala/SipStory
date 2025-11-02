@@ -1,22 +1,19 @@
 ### API Endpoint Test Suite
 ### POST /api/tasting-notes
 
-@baseUrl = http://localhost:3000/api/tasting-notes
+@endpointUrl = {{baseUrl}}/api/tasting-notes
 
 ### AUTHENTICATION: 
 ### 1. Run the login request in auth.http to get an access token
-### 2. Copy the access_token from the response and paste it below
-@accessToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjU0MzIxL2F1dGgvdjEiLCJzdWIiOiI3Njk4MWZlNC0xZDdhLTQzZmEtYTg3OS0xYzEwMTIwNWM0NGIiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzYyMDk2OTYxLCJpYXQiOjE3NjIwOTMzNjEsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWxfdmVyaWZpZWQiOnRydWV9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzYyMDkzMzYxfV0sInNlc3Npb25faWQiOiJlZGYzOWM0Yi05NzQyLTQyZDctYTlkMC05ZjEwZGQ4ODVhYzMiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.z4dF0yr-OIv12fqrKc3Sgz4KqaybUM9xzhqVlp8KzoY
+### 2. Update the accessToken in http-client.private.env.json (gitignored)
+### 3. Or set it directly below for quick testing
 
-### SETUP: First, you need to create a blend using POST /api/blends
-### Save the returned blend_id and use it in the tests below
-
-@testBlendId = 85e8ef56-f4b1-47b8-a9f6-f58a0dd53d16
-@nonExistentBlendId = 00000000-0000-0000-0000-000000000001
+### SETUP: Create a blend using POST /api/blends first
+### Save the returned blend_id in http-client.private.env.json
 
 ### Test 1: Create tasting note with all fields
 ### Expected: 201 Created with complete tasting note data
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -35,7 +32,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 2: Create tasting note with only required fields
 ### Expected: 201 Created with null values for optional fields
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -46,7 +43,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 3: Missing required field (blend_id)
 ### Expected: 400 Bad Request with validation error details
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -56,7 +53,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 4: Missing required field (overall_rating)
 ### Expected: 400 Bad Request with validation error details
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -66,7 +63,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 5: Non-existent blend_id
 ### Expected: 404 Not Found
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -77,7 +74,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 6: Invalid UUID format for blend_id
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -88,7 +85,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 7: Invalid rating value (< 1)
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -99,7 +96,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 8: Invalid rating value (> 5)
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -110,7 +107,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 9: Invalid optional rating value (umami > 5)
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -122,7 +119,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 10: Negative price
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -134,7 +131,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 11: Invalid field type (overall_rating as string)
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -145,7 +142,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 12: Invalid JSON format
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -153,7 +150,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 13: Create multiple notes for same blend (should succeed)
 ### Expected: 201 Created (different notes for same blend allowed)
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -166,7 +163,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 14: Create with null values for optional fields
 ### Expected: 201 Created
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -185,7 +182,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 15: Notes max length (5000 chars)
 ### Expected: 201 Created
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
@@ -197,7 +194,7 @@ Authorization: Bearer {{accessToken}}
 
 ### Test 16: Notes exceeding max length
 ### Expected: 400 Bad Request
-POST {{baseUrl}}
+POST {{endpointUrl}}
 Content-Type: application/json
 Authorization: Bearer {{accessToken}}
 
