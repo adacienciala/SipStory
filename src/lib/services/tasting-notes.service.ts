@@ -165,3 +165,64 @@ export async function listTastingNotes(
     },
   };
 }
+
+/**
+ * Retrieves a single tasting note by its ID for a specific user
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - UUID of the authenticated user
+ * @param id - UUID of the tasting note to retrieve
+ * @returns Single tasting note or null if not found
+ * @throws Error if database query fails
+ *
+ * @example
+ * const note = await getTastingNoteById(supabase, userId, '123e4567-e89b-12d3-a456-426614174000');
+ * if (note) {
+ *   console.log(note.blend.brand.name);
+ * }
+ */
+export async function getTastingNoteById(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string
+): Promise<TastingNoteResponseDTO | null> {
+  // Build query with nested relations (same structure as list)
+  const { data, error } = await supabase
+    .from("tasting_notes")
+    .select(
+      `
+      *,
+      blend:blends!inner (
+        id,
+        name,
+        brand:brands!inner (
+          id,
+          name
+        ),
+        region:regions!inner (
+          id,
+          name
+        )
+      )
+    `
+    )
+    .eq("id", id)
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle();
+
+  // Handle database errors
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Database query failed:", error);
+    throw new Error(`Failed to fetch tasting note: ${error.message}`);
+  }
+
+  // Return null if not found (valid scenario)
+  if (!data) {
+    return null;
+  }
+
+  // Transform database result to DTO
+  return transformToTastingNoteResponseDTO(data);
+}
