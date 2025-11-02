@@ -5,11 +5,10 @@
 
 ### AUTHENTICATION: 
 ### 1. Run the login request in auth.http to get an access token
-### 2. Update the accessToken in http-client.private.env.json (gitignored)
-### 3. Or set it directly below for quick testing
+### 2. Update the accessToken.
 
 ### SETUP: Create a blend using POST /api/blends first
-### Save the returned blend_id in http-client.private.env.json
+### Save the returned blend_id.
 
 ### Test 1: Create tasting note with all fields
 ### Expected: 201 Created with complete tasting note data

@@ -1,0 +1,82 @@
+### API Endpoint Test Suite
+### DELETE /api/tasting-notes/:id
+@endpointUrl = {{baseUrl}}/api/tasting-notes
+
+### AUTHENTICATION: 
+### 1. Run the login request in auth.http to get an access token
+### 2. Update the accessToken.
+
+### SETUP: Create a tasting note using POST /api/tasting-notes first
+### Save the returned note id.
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: Delete existing tasting note
+### Expected: 204 No Content (no body)
+DELETE {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### NOT FOUND CASES (404 Not Found)
+### ============================================================================
+
+### Test 2: Delete already-deleted note (idempotent)
+### Expected: 404 Not Found
+### Note: Run Test 1 first, then run this to try deleting the same note again
+DELETE {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 3: Delete non-existent tasting note ID
+### Expected: 404 Not Found
+DELETE {{endpointUrl}}/{{nonExistentNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 4: Delete note belonging to different user
+### Expected: 404 Not Found (due to RLS/user_id filter)
+### Note: Use a note ID from a different user's account
+DELETE {{endpointUrl}}/223e4567-e89b-12d3-a456-426614174099
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 5: Delete with invalid UUID format in path
+### Expected: 400 Bad Request - invalid UUID format
+DELETE {{endpointUrl}}/invalid-uuid-format
+Authorization: Bearer {{accessToken}}
+
+### Test 6: Delete with missing ID in path
+### Expected: 404 Not Found (Astro routing issue, not our API)
+DELETE {{endpointUrl}}/
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### AUTHENTICATION ERROR CASES (401 Unauthorized)
+### ============================================================================
+
+### Test 7: Delete without Authorization header
+### Expected: 401 Unauthorized
+DELETE {{endpointUrl}}/{{testNoteId}}
+
+### Test 8: Delete with invalid access token
+### Expected: 401 Unauthorized
+DELETE {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer invalid_token_here
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 9: Delete with extra query parameters (parameters should be ignored)
+### Expected: 204 No Content
+DELETE {{endpointUrl}}/{{testNoteId}}?foo=bar&baz=qux
+Authorization: Bearer {{accessToken}}
+
+### Test 10: Verify note is actually deleted (follow-up GET request)
+### Expected: 404 Not Found
+### Note: Run after Test 1 to verify deletion was permanent
+GET {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}

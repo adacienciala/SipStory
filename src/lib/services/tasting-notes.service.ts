@@ -355,3 +355,37 @@ export async function updateTastingNote(
   // Fetch with complete nested relations
   return await getTastingNoteById(supabase, userId, id);
 }
+
+/**
+ * Deletes an existing tasting note owned by the authenticated user
+ * Permanently removes the note from the database
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - UUID of the authenticated user
+ * @param id - UUID of the tasting note to delete
+ * @returns True if note was deleted, false if not found/unauthorized
+ * @throws Error if database operation fails
+ *
+ * @example
+ * const deleted = await deleteTastingNote(supabase, userId, noteId);
+ * if (deleted) {
+ *   console.log('Note deleted successfully');
+ * }
+ */
+export async function deleteTastingNote(supabase: SupabaseClient, userId: string, id: string): Promise<boolean> {
+  // Delete tasting note (RLS ensures user ownership)
+  const { data, error } = await supabase
+    .from("tasting_notes")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to delete tasting note: ${error.message}`);
+  }
+
+  // Return true if a row was deleted, false if not found
+  return data !== null;
+}

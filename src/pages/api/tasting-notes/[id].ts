@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 
 import { formatZodErrors } from "../../../lib/helpers/format-error";
-import { updateTastingNote } from "../../../lib/services/tasting-notes.service";
+import { deleteTastingNote, updateTastingNote } from "../../../lib/services/tasting-notes.service";
 import { updateTastingNoteSchema } from "../../../lib/validators/update-tasting-note.validator";
 import { uuidSchema } from "../../../lib/validators/uuid.validator";
 import type { ErrorResponseDTO, TastingNoteResponseDTO } from "../../../types";
@@ -281,6 +281,95 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
+  } catch (error) {
+    // Log error server-side (with context for debugging)
+    // eslint-disable-next-line no-console
+    console.error("API route error:", error);
+
+    const errorResponse: ErrorResponseDTO = {
+      error: "Internal server error",
+    };
+    return new Response(JSON.stringify(errorResponse), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};
+
+/**
+ * DELETE /api/tasting-notes/:id
+ * Permanently deletes a tasting note owned by the authenticated user
+ */
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  try {
+    // Extract Supabase client from middleware
+    const { supabase, user } = locals;
+
+    if (!supabase) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Database client not available",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if user is authenticated
+    if (!user) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Unauthorized - Authentication required",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Extract and validate ID from path parameters
+    const { id } = params;
+
+    if (!id) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Tasting note ID is required",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate UUID format
+    const idValidationResult = uuidSchema.safeParse(id);
+
+    if (!idValidationResult.success) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Invalid tasting note ID format",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const validatedId = idValidationResult.data;
+
+    // Call service layer to delete tasting note
+    const deleted = await deleteTastingNote(supabase, user.id, validatedId);
+
+    // Handle case where note doesn't exist or doesn't belong to user
+    if (!deleted) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Tasting note not found",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Return 204 No Content on successful deletion
+    return new Response(null, { status: 204 });
   } catch (error) {
     // Log error server-side (with context for debugging)
     // eslint-disable-next-line no-console

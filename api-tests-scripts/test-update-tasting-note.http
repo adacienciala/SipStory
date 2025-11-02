@@ -4,11 +4,10 @@
 
 ### AUTHENTICATION: 
 ### 1. Run the login request in auth.http to get an access token
-### 2. Update the accessToken in http-client.private.env.json (gitignored)
-### 3. Or update @accessToken above for quick testing
+### 2. Update the accessToken.
 
 ### SETUP: Create a tasting note using POST /api/tasting-notes first
-### Save the returned note id in http-client.private.env.json or @testNoteId above
+### Save the returned note id.
 
 ### ============================================================================
 ### SUCCESS CASES
