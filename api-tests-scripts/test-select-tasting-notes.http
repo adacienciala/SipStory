@@ -1,0 +1,130 @@
+### API Endpoint Test Suite
+### GET /api/tasting-notes/select
+@endpointUrl = {{baseUrl}}/api/tasting-notes/select
+
+### AUTHENTICATION: 
+### 1. Run the login request in auth.http to get an access token
+### 2. Update the accessToken.
+
+### SETUP: Create at least 2 tasting notes using POST /api/tasting-notes
+### Save the returned note IDs as testNoteId and testNoteId2.
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: Select 2 existing notes (happy path)
+### Expected: 200 OK with array of 2 notes
+GET {{endpointUrl}}?ids={{testNoteId}},{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### Test 2: Select 2 notes in reverse order
+### Expected: 200 OK with notes in the order specified
+GET {{endpointUrl}}?ids={{testNoteId2}},{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 3: Select notes with extra whitespace
+### Expected: 200 OK (whitespace should be trimmed)
+GET {{endpointUrl}}?ids={{testNoteId}} , {{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 4: Missing ids parameter
+### Expected: 400 Bad Request - ids parameter is required
+GET {{endpointUrl}}
+Authorization: Bearer {{accessToken}}
+
+### Test 5: Empty ids parameter
+### Expected: 400 Bad Request - exactly 2 IDs required
+GET {{endpointUrl}}?ids=
+Authorization: Bearer {{accessToken}}
+
+### Test 6: Only 1 ID provided
+### Expected: 400 Bad Request - exactly 2 IDs required
+GET {{endpointUrl}}?ids={{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 7: 3 IDs provided (too many)
+### Expected: 400 Bad Request - exactly 2 IDs required
+GET {{endpointUrl}}?ids={{testNoteId}},{{testNoteId2}},{{nonExistentNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 8: Invalid UUID format (first ID)
+### Expected: 400 Bad Request - invalid UUID format
+GET {{endpointUrl}}?ids=invalid-uuid,{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### Test 9: Invalid UUID format (second ID)
+### Expected: 400 Bad Request - invalid UUID format
+GET {{endpointUrl}}?ids={{testNoteId}},not-a-uuid
+Authorization: Bearer {{accessToken}}
+
+### Test 10: Invalid UUID format (both IDs)
+### Expected: 400 Bad Request - invalid UUID format
+GET {{endpointUrl}}?ids=invalid-uuid-1,invalid-uuid-2
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### NOT FOUND CASES (404 Not Found)
+### ============================================================================
+
+### Test 11: First note doesn't exist
+### Expected: 404 Not Found - one or more notes not found
+GET {{endpointUrl}}?ids={{nonExistentNoteId}},{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### Test 12: Second note doesn't exist
+### Expected: 404 Not Found - one or more notes not found
+GET {{endpointUrl}}?ids={{testNoteId}},{{nonExistentNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 13: Both notes don't exist
+### Expected: 404 Not Found - one or more notes not found
+GET {{endpointUrl}}?ids={{nonExistentNoteId}},223e4567-e89b-12d3-a456-426614174099
+Authorization: Bearer {{accessToken}}
+
+### Test 14: One note belongs to different user
+### Expected: 404 Not Found (due to RLS/user_id filter)
+### Note: Use a note ID from a different user's account
+GET {{endpointUrl}}?ids={{testNoteId}},323e4567-e89b-12d3-a456-426614174099
+Authorization: Bearer {{accessToken}}
+
+### Test 15: Same ID provided twice (duplicate)
+### Expected: 404 Not Found (only 1 note returned, need exactly 2)
+GET {{endpointUrl}}?ids={{testNoteId}},{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### ============================================================================
+### AUTHENTICATION ERROR CASES (401 Unauthorized)
+### ============================================================================
+
+### Test 16: Missing Authorization header
+### Expected: 401 Unauthorized
+GET {{endpointUrl}}?ids={{testNoteId}},{{testNoteId2}}
+
+### Test 17: Invalid access token
+### Expected: 401 Unauthorized
+GET {{endpointUrl}}?ids={{testNoteId}},{{testNoteId2}}
+Authorization: Bearer invalid_token_here
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 18: IDs separated by semicolon instead of comma
+### Expected: 400 Bad Request - only 1 ID parsed (semicolon not recognized)
+GET {{endpointUrl}}?ids={{testNoteId}};{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### Test 19: IDs with URL encoding
+### Expected: 200 OK (URL encoding should be decoded automatically)
+GET {{endpointUrl}}?ids={{testNoteId}}%2C{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
+
+### Test 20: Multiple ids parameters (only first should be used)
+### Expected: 400 Bad Request or 200 OK depending on implementation
+GET {{endpointUrl}}?ids={{testNoteId}}&ids={{testNoteId2}}
+Authorization: Bearer {{accessToken}}

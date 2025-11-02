@@ -389,3 +389,76 @@ export async function deleteTastingNote(supabase: SupabaseClient, userId: string
   // Return true if a row was deleted, false if not found
   return data !== null;
 }
+
+/**
+ * Retrieves exactly two specific tasting notes by their IDs for comparison
+ * Used for the side-by-side comparison feature
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - UUID of the authenticated user
+ * @param ids - Array of exactly 2 UUIDs to retrieve
+ * @returns Array of exactly 2 tasting notes in requested order, or null if not all found
+ * @throws Error if database query fails
+ *
+ * @example
+ * const notes = await selectTastingNotes(supabase, userId, [
+ *   '123e4567-e89b-12d3-a456-426614174000',
+ *   '223e4567-e89b-12d3-a456-426614174001'
+ * ]);
+ * if (notes) {
+ *   console.log('Compare', notes[0].blend.name, 'vs', notes[1].blend.name);
+ * }
+ */
+export async function selectTastingNotes(
+  supabase: SupabaseClient,
+  userId: string,
+  ids: string[]
+): Promise<TastingNoteResponseDTO[] | null> {
+  // Query with nested relations (same structure as getTastingNoteById)
+  const { data, error } = await supabase
+    .from("tasting_notes")
+    .select(
+      `
+      *,
+      blend:blends!inner (
+        id,
+        name,
+        brand:brands!inner (
+          id,
+          name
+        ),
+        region:regions!inner (
+          id,
+          name
+        )
+      )
+    `
+    )
+    .in("id", ids)
+    .eq("user_id", userId);
+
+  // Handle database errors
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Database query failed:", error);
+    throw new Error(`Failed to select tasting notes: ${error.message}`);
+  }
+
+  // Check if we got exactly 2 notes (both must exist and belong to user)
+  if (!data || data.length !== 2) {
+    return null;
+  }
+
+  // Sort results to match requested order (preserve order of IDs array)
+  const sortedData = ids
+    .map((id) => data.find((note) => note.id === id))
+    .filter((note): note is DatabaseTastingNoteResult => note !== undefined);
+
+  // Verify we still have exactly 2 notes after sorting
+  if (sortedData.length !== 2) {
+    return null;
+  }
+
+  // Transform database results to DTOs
+  return sortedData.map(transformToTastingNoteResponseDTO);
+}
