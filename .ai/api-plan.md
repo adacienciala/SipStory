@@ -456,7 +456,7 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/brands`  
 **Description:** Retrieve a list of all brands (global, public access)  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -486,10 +486,10 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
+- **400 Bad Request:** Invalid query parameters
   ```json
   {
-    "error": "Unauthorized"
+    "error": "Invalid query parameters"
   }
   ```
 
@@ -500,7 +500,7 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/brands/:id`  
 **Description:** Retrieve a single brand by its UUID  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -519,16 +519,16 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
-  ```json
-  {
-    "error": "Unauthorized"
-  }
-  ```
 - **404 Not Found:** Brand does not exist
   ```json
   {
     "error": "Brand not found"
+  }
+  ```
+- **400 Bad Request:** Invalid UUID format
+  ```json
+  {
+    "error": "Invalid UUID format"
   }
   ```
 
@@ -541,7 +541,7 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/regions`  
 **Description:** Retrieve a list of all regions (global, public access)  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -571,21 +571,21 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
+- **400 Bad Request:** Invalid query parameters
   ```json
   {
-    "error": "Unauthorized"
+    "error": "Invalid query parameters"
   }
   ```
 
 ---
 
-#### 2.4.2. Get Region by ID
+#### 2.3.2. Get Region by ID
 
 **HTTP Method:** `GET`  
 **URL Path:** `/api/regions/:id`  
 **Description:** Retrieve a single region by its UUID  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -604,16 +604,16 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
-  ```json
-  {
-    "error": "Unauthorized"
-  }
-  ```
 - **404 Not Found:** Region does not exist
   ```json
   {
     "error": "Region not found"
+  }
+  ```
+- **400 Bad Request:** Invalid UUID format
+  ```json
+  {
+    "error": "Invalid UUID format"
   }
   ```
 
@@ -621,12 +621,116 @@ No body returned
 
 ### 2.4. Blends
 
+#### 2.4.0. Create Blend
+
+**HTTP Method:** `POST`  
+**URL Path:** `/api/blends`  
+**Description:** Create a new blend with nested brand and region creation if they don't exist  
+**Authentication:** Required (Bearer token)
+
+**Request Body:**
+
+```json
+{
+  "name": "Ceremonial Grade",
+  "brand": {
+    "id": "uuid", // If provided, use existing brand
+    "name": "Ippodo Tea" // If provided, create new brand
+  },
+  "region": {
+    "id": "uuid", // If provided, use existing region
+    "name": "Uji, Kyoto" // If provided, create new region
+  }
+}
+```
+
+**Validation Rules:**
+
+- `name` (required): string, 1-200 characters, trimmed
+- `brand` (required): object with either `id` OR `name` (not both, not neither)
+  - If `brand.id`: must be valid UUID and exist in database
+  - If `brand.name`: string, 1-100 characters, trimmed (creates if doesn't exist)
+- `region` (required): object with either `id` OR `name` (not both, not neither)
+  - If `region.id`: must be valid UUID and exist in database
+  - If `region.name`: string, 1-100 characters, trimmed (creates if doesn't exist)
+
+**Business Logic:**
+
+1. Validate all input fields
+2. If `brand.id`: verify brand exists, return 404 if not
+3. If `brand.name`: check if brand exists by name (case-insensitive), create if not
+4. If `region.id`: verify region exists, return 404 if not
+5. If `region.name`: check if region exists by name (case-insensitive), create if not
+6. Check if blend with same (name, brand_id, region_id) already exists
+7. If duplicate exists: return 409 Conflict
+8. Create blend with resolved brand_id and region_id
+9. Return created blend with nested brand and region data
+
+**Success Response (201 Created):**
+
+```json
+{
+  "id": "uuid",
+  "name": "Ceremonial Grade",
+  "brand_id": "uuid",
+  "region_id": "uuid",
+  "created_at": "timestamp",
+  "brand": {
+    "id": "uuid",
+    "name": "Ippodo Tea"
+  },
+  "region": {
+    "id": "uuid",
+    "name": "Uji, Kyoto"
+  }
+}
+```
+
+**Error Responses:**
+
+- **401 Unauthorized:** Missing or invalid authentication
+  ```json
+  {
+    "error": "Unauthorized"
+  }
+  ```
+- **400 Bad Request:** Validation error
+  ```json
+  {
+    "error": "Validation failed",
+    "details": [
+      { "field": "name", "message": "must be at least 1 character" },
+      { "field": "brand", "message": "must provide either id OR name, not both" }
+    ]
+  }
+  ```
+- **404 Not Found:** Referenced brand/region ID doesn't exist
+  ```json
+  {
+    "error": "Brand not found"
+  }
+  ```
+  OR
+  ```json
+  {
+    "error": "Region not found"
+  }
+  ```
+- **409 Conflict:** Blend with same name, brand, and region already exists
+  ```json
+  {
+    "error": "Blend already exists"
+  }
+  ```
+
+---
+
 #### 2.4.1. List Blends
 
 **HTTP Method:** `GET`  
 **URL Path:** `/api/blends`  
 **Description:** Retrieve a list of all blends with their associated brand and region  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -666,10 +770,10 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
+- **400 Bad Request:** Invalid query parameters
   ```json
   {
-    "error": "Unauthorized"
+    "error": "Invalid query parameters"
   }
   ```
 
@@ -680,7 +784,7 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/blends/:id`  
 **Description:** Retrieve a single blend by its UUID  
-**Authentication:** Required (Bearer token)
+**Authentication:** Not Required (public read access)
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -707,16 +811,16 @@ No body returned
 
 **Error Responses:**
 
-- **401 Unauthorized:** Missing or invalid authentication
-  ```json
-  {
-    "error": "Unauthorized"
-  }
-  ```
 - **404 Not Found:** Blend does not exist
   ```json
   {
     "error": "Blend not found"
+  }
+  ```
+- **400 Bad Request:** Invalid UUID format
+  ```json
+  {
+    "error": "Invalid UUID format"
   }
   ```
 

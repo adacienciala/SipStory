@@ -110,15 +110,29 @@ export interface TastingNoteResponseDTO {
 // ============================================================================
 
 /**
+ * Command model for creating a new blend
+ * Can reference existing entities by ID or create new ones by name
+ */
+export interface CreateBlendDTO {
+  name: string;
+  brand: {
+    id?: string | null;
+    name?: string | null;
+  };
+  region: {
+    id?: string | null;
+    name?: string | null;
+  };
+}
+
+/**
  * Command model for creating a new tasting note
- * Contains user-provided input for brand/blend/region names (not IDs)
- * Backend resolves these to entities and creates relationships
+ * Contains user-provided input with blend_id (must exist)
+ * Users must create blends separately before creating tasting notes
  */
 export interface CreateTastingNoteDTO {
   // Required fields
-  brand_name: string;
-  blend_name: string;
-  region_name: string;
+  blend_id: string; // UUID of existing blend
   overall_rating: number; // 1-5
 
   // Optional rating fields

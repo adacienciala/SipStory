@@ -1,4 +1,5 @@
 import type { ZodError } from "zod";
+import type { ValidationErrorDTO } from "../../types";
 
 /**
  * Formats Zod validation errors into human-readable messages
@@ -28,4 +29,24 @@ export function formatZodError(error: ZodError): string {
   // If there's a field path, include it in the error message
   // Otherwise, just return the message
   return field ? `${field} ${message}` : message;
+}
+
+/**
+ * Formats all Zod validation errors into structured validation error DTOs
+ *
+ * @param error - ZodError object from failed validation
+ * @returns Array of validation error details
+ *
+ * @example
+ * // Returns: [
+ * //   { field: "overall_rating", message: "Required" },
+ * //   { field: "brand_name", message: "String must contain at least 1 character(s)" }
+ * // ]
+ * formatZodErrors(zodError);
+ */
+export function formatZodErrors(error: ZodError): ValidationErrorDTO[] {
+  return error.errors.map((err) => ({
+    field: err.path.join("."),
+    message: err.message,
+  }));
 }

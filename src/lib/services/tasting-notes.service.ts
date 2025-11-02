@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type {
+  CreateTastingNoteDTO,
   NestedBlendDTO,
   TastingNoteEntity,
   TastingNoteResponseDTO,
@@ -225,4 +226,72 @@ export async function getTastingNoteById(
 
   // Transform database result to DTO
   return transformToTastingNoteResponseDTO(data);
+}
+
+/**
+ * Creates a new tasting note using an existing blend ID
+ * Validates that the blend exists before creating the note
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - UUID of the authenticated user
+ * @param data - Validated tasting note data from request
+ * @returns Newly created tasting note with nested relations, or null if blend not found
+ * @throws Error if database operation fails
+ *
+ * @example
+ * const note = await createTastingNote(supabase, userId, {
+ *   blend_id: '123e4567-e89b-12d3-a456-426614174000',
+ *   overall_rating: 5,
+ *   umami: 5,
+ *   notes_koicha: 'Rich and creamy'
+ * });
+ */
+export async function createTastingNote(
+  supabase: SupabaseClient,
+  userId: string,
+  data: CreateTastingNoteDTO
+): Promise<TastingNoteResponseDTO | null> {
+  // Step 1: Verify blend exists
+  const { data: blendExists } = await supabase
+    .from("blends")
+    .select("id")
+    .eq("id", data.blend_id)
+    .limit(1)
+    .maybeSingle();
+
+  if (!blendExists) {
+    return null; // Blend not found
+  }
+
+  // Step 2: Create tasting note
+  const { data: tastingNote, error } = await supabase
+    .from("tasting_notes")
+    .insert({
+      user_id: userId,
+      blend_id: data.blend_id,
+      overall_rating: data.overall_rating,
+      umami: data.umami ?? null,
+      bitter: data.bitter ?? null,
+      sweet: data.sweet ?? null,
+      foam: data.foam ?? null,
+      notes_koicha: data.notes_koicha ?? null,
+      notes_milk: data.notes_milk ?? null,
+      price_pln: data.price_pln ?? null,
+      purchase_source: data.purchase_source ?? null,
+    })
+    .select()
+    .single();
+
+  if (error || !tastingNote) {
+    throw new Error(`Failed to create tasting note: ${error?.message || "Unknown error"}`);
+  }
+
+  // Step 3: Fetch with complete nested relations
+  const createdNote = await getTastingNoteById(supabase, userId, tastingNote.id);
+
+  if (!createdNote) {
+    throw new Error("Failed to fetch created tasting note");
+  }
+
+  return createdNote;
 }
