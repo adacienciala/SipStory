@@ -6,6 +6,8 @@ import type {
   TastingNoteResponseDTO,
   TastingNotesListResponseDTO,
   TastingNotesQueryDTO,
+  TastingNoteUpdate,
+  UpdateTastingNoteDTO,
 } from "../../types";
 
 /**
@@ -294,4 +296,62 @@ export async function createTastingNote(
   }
 
   return createdNote;
+}
+
+/**
+ * Updates an existing tasting note owned by the authenticated user
+ * Only updates fields that are provided in the data object
+ * Cannot update blend_id, user_id, created_at (immutable)
+ *
+ * @param supabase - Supabase client instance
+ * @param userId - UUID of the authenticated user
+ * @param id - UUID of the tasting note to update
+ * @param data - Partial tasting note data with fields to update
+ * @returns Updated tasting note with nested relations, or null if not found/unauthorized
+ * @throws Error if database operation fails
+ *
+ * @example
+ * const note = await updateTastingNote(supabase, userId, noteId, {
+ *   overall_rating: 4,
+ *   notes_koicha: 'Updated notes'
+ * });
+ */
+export async function updateTastingNote(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+  data: UpdateTastingNoteDTO
+): Promise<TastingNoteResponseDTO | null> {
+  // Build update object with only provided fields
+  const updateData: Partial<TastingNoteUpdate> = {};
+
+  if (data.overall_rating !== undefined) updateData.overall_rating = data.overall_rating;
+  if (data.umami !== undefined) updateData.umami = data.umami;
+  if (data.bitter !== undefined) updateData.bitter = data.bitter;
+  if (data.sweet !== undefined) updateData.sweet = data.sweet;
+  if (data.foam !== undefined) updateData.foam = data.foam;
+  if (data.notes_koicha !== undefined) updateData.notes_koicha = data.notes_koicha;
+  if (data.notes_milk !== undefined) updateData.notes_milk = data.notes_milk;
+  if (data.price_pln !== undefined) updateData.price_pln = data.price_pln;
+  if (data.purchase_source !== undefined) updateData.purchase_source = data.purchase_source;
+
+  // Update tasting note (RLS ensures user ownership)
+  const { data: updatedNote, error } = await supabase
+    .from("tasting_notes")
+    .update(updateData)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to update tasting note: ${error.message}`);
+  }
+
+  if (!updatedNote) {
+    return null; // Note not found or doesn't belong to user
+  }
+
+  // Fetch with complete nested relations
+  return await getTastingNoteById(supabase, userId, id);
 }

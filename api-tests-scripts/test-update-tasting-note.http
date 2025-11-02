@@ -1,0 +1,320 @@
+### API Endpoint Test Suite
+### PATCH /api/tasting-notes/:id
+@endpointUrl = {{baseUrl}}/api/tasting-notes
+
+### AUTHENTICATION: 
+### 1. Run the login request in auth.http to get an access token
+### 2. Update the accessToken in http-client.private.env.json (gitignored)
+### 3. Or update @accessToken above for quick testing
+
+### SETUP: Create a tasting note using POST /api/tasting-notes first
+### Save the returned note id in http-client.private.env.json or @testNoteId above
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: Update all optional fields
+### Expected: 200 OK with updated tasting note
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4,
+  "umami": 4,
+  "bitter": 3,
+  "sweet": 3,
+  "foam": 4,
+  "notes_koicha": "Updated koicha notes after second tasting",
+  "notes_milk": "Updated milk notes - works great with oat milk",
+  "price_pln": 120,
+  "purchase_source": "https://updated-store.com"
+}
+
+### Test 2: Update only overall_rating (partial update)
+### Expected: 200 OK with only rating changed
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 5
+}
+
+### Test 3: Update only text fields
+### Expected: 200 OK with only notes changed
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "notes_koicha": "Refined notes: exceptional umami, very smooth",
+  "notes_milk": "Perfect balance with milk"
+}
+
+### Test 4: Update with null values (clearing optional fields)
+### Expected: 200 OK with null values set
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "umami": null,
+  "bitter": null,
+  "notes_milk": null,
+  "price_pln": null
+}
+
+### Test 5: Update with empty string (should be stored as empty, not null)
+### Expected: 200 OK with empty string stored
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "notes_koicha": "",
+  "purchase_source": ""
+}
+
+### Test 6: Update only price and source
+### Expected: 200 OK with only metadata changed
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price_pln": 200,
+  "purchase_source": "Local tea ceremony shop"
+}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 7: Empty request body (no fields provided)
+### Expected: 400 Bad Request - at least one field required
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{}
+
+### Test 8: Invalid overall_rating (too high)
+### Expected: 400 Bad Request - rating must be 1-5
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 6
+}
+
+### Test 9: Invalid overall_rating (too low)
+### Expected: 400 Bad Request - rating must be 1-5
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 0
+}
+
+### Test 10: Invalid overall_rating (not an integer)
+### Expected: 400 Bad Request - must be integer
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 3.5
+}
+
+### Test 11: Invalid umami rating (out of range)
+### Expected: 400 Bad Request - rating must be 1-5 or null
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "umami": 7
+}
+
+### Test 12: Invalid field type (string instead of number)
+### Expected: 400 Bad Request - type mismatch
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": "five"
+}
+
+### Test 13: notes_koicha exceeds max length (5000 chars)
+### Expected: 400 Bad Request - string too long
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "notes_koicha": " Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem Ipsum lorem"
+}
+
+### Test 14: Negative price_pln
+### Expected: 400 Bad Request - price must be non-negative
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "price_pln": -50
+}
+
+### Test 15: Invalid UUID format in path
+### Expected: 400 Bad Request - invalid UUID format
+PATCH {{endpointUrl}}/{{invalidUuid}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4
+}
+
+### ============================================================================
+### NOT FOUND CASES (404 Not Found)
+### ============================================================================
+
+### Test 16: Non-existent tasting note ID
+### Expected: 404 Not Found
+PATCH {{endpointUrl}}/{{nonExistentNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4
+}
+
+### Test 17: Note belonging to different user
+### Expected: 404 Not Found (due to RLS/user_id filter)
+### Note: Use a note ID from a different user's account
+PATCH {{endpointUrl}}/223e4567-e89b-12d3-a456-426614174099
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4
+}
+
+### ============================================================================
+### AUTHENTICATION ERROR CASES (401 Unauthorized)
+### ============================================================================
+
+### Test 18: Missing Authorization header
+### Expected: 401 Unauthorized
+PATCH {{endpointUrl}}/{{testNoteId}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4
+}
+
+### Test 19: Invalid access token
+### Expected: 401 Unauthorized
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer invalid_token_here
+Content-Type: application/json
+
+{
+  "overall_rating": 4
+}
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 20: Attempt to update immutable field blend_id
+### Expected: 400 Bad Request - unrecognized key
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4,
+  "blend_id": "00000000-0000-0000-0000-000000000999"
+}
+
+### Test 21: Attempt to update immutable field user_id
+### Expected: 400 Bad Request - unrecognized key
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4,
+  "user_id": "00000000-0000-0000-0000-000000000888"
+}
+
+### Test 22: Attempt to update immutable field created_at
+### Expected: 400 Bad Request - unrecognized key
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 4,
+  "created_at": "2025-01-01T00:00:00Z"
+}
+
+### Test 23: Update with same values (idempotent)
+### Expected: 200 OK, no actual changes but updated_at may change
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 5,
+  "notes_koicha": "Refined notes: exceptional umami, very smooth"
+}
+
+### Test 24: Update all ratings to null
+### Expected: 200 OK with null ratings (except overall_rating)
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "umami": null,
+  "bitter": null,
+  "sweet": null,
+  "foam": null
+}
+
+### Test 25: Maximum valid values
+### Expected: 200 OK
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 5,
+  "umami": 5,
+  "bitter": 5,
+  "sweet": 5,
+  "foam": 5,
+  "price_pln": 999999
+}
+
+### Test 26: Minimum valid values
+### Expected: 200 OK
+PATCH {{endpointUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "overall_rating": 1,
+  "umami": 1,
+  "bitter": 1,
+  "sweet": 1,
+  "foam": 1,
+  "price_pln": 0
+}
