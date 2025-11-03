@@ -6,26 +6,28 @@ import { z } from "zod";
  *
  * @example
  * const schema = z.object({
- *   ...PaginationQuerySchema.shape,
+ *   ...paginationQuerySchema.shape,
  *   // ... other fields
  * });
  */
-export const PaginationQuerySchema = z.object({
+export const paginationQuerySchema = z.object({
   page: z.coerce
     .number({ invalid_type_error: "must be a number" })
     .int("must be an integer")
     .positive("must be a positive integer")
-    .nullable(),
+    .nullable()
+    .optional(),
 
   limit: z.coerce
     .number({ invalid_type_error: "must be a number" })
     .int("must be an integer")
     .min(1, "must be at least 1")
     .max(100, "must be at most 100")
-    .nullable(),
+    .nullable()
+    .optional(),
 });
 
 /**
  * Inferred type for pagination parameters
  */
-export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
+export type PaginationQuery = z.infer<typeof paginationQuerySchema>;

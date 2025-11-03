@@ -181,8 +181,8 @@ export interface PaginationMetaDTO {
  * Common pagination query parameters
  */
 export interface PaginationQueryDTO {
-  page?: number;
-  limit?: number;
+  page?: number | null;
+  limit?: number | null;
 }
 
 /**

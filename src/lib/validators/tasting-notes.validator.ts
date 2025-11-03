@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { PaginationQuerySchema } from "./pagination.validator";
+import { paginationQuerySchema } from "./pagination.validator";
 
 /**
  * UUID validation schema
@@ -22,7 +22,7 @@ const commaSeparatedUuidsSchema = z
  */
 export const tastingNotesQuerySchema = z.object({
   // Pagination parameters
-  ...PaginationQuerySchema.shape,
+  ...paginationQuerySchema.shape,
 
   // Filter parameters
   brand_ids: commaSeparatedUuidsSchema.nullable(),

@@ -75,18 +75,14 @@ export async function listTastingNotes(
   userId: string,
   query: TastingNotesQueryDTO
 ): Promise<TastingNotesListResponseDTO> {
-  const {
-    page = 1,
-    limit = 20,
-    brand_ids,
-    region_ids,
-    min_rating,
-    sort_by = "created_at",
-    sort_order = "desc",
-  } = query;
+  const { page, limit, brand_ids, region_ids, min_rating, sort_by = "created_at", sort_order = "desc" } = query;
+
+  // Handle nullish values
+  const effectivePage = page ?? 1;
+  const effectiveLimit = limit ?? 20;
 
   // Calculate pagination offset
-  const offset = (page - 1) * limit;
+  const offset = (effectivePage - 1) * effectiveLimit;
 
   // Build base query with nested relations
   // Using aliases to match API response structure (blend, brand, region)
@@ -131,7 +127,7 @@ export async function listTastingNotes(
   dbQuery = dbQuery.order(sort_by, { ascending: sort_order === "asc" });
 
   // Apply pagination
-  dbQuery = dbQuery.range(offset, offset + limit - 1);
+  dbQuery = dbQuery.range(offset, offset + effectiveLimit - 1);
 
   // Execute query
   const { data, error, count } = await dbQuery;
@@ -149,8 +145,8 @@ export async function listTastingNotes(
       data: [],
       pagination: {
         total: 0,
-        page,
-        limit,
+        page: effectivePage,
+        limit: effectiveLimit,
       },
     };
   }
@@ -163,8 +159,8 @@ export async function listTastingNotes(
     data: transformedData,
     pagination: {
       total: count || 0,
-      page,
-      limit,
+      page: effectivePage,
+      limit: effectiveLimit,
     },
   };
 }
