@@ -81,15 +81,9 @@ export async function listTastingNotes(
   const effectivePage = page ?? 1;
   const effectiveLimit = limit ?? 20;
 
-  // Calculate pagination offset
-  const offset = (effectivePage - 1) * effectiveLimit;
-
   // Build base query with nested relations
   // Using aliases to match API response structure (blend, brand, region)
-  let dbQuery = supabase
-    .from("tasting_notes")
-    .select(
-      `
+  const selectClause = `
       *,
       blend:blends!inner (
         id,
@@ -103,10 +97,8 @@ export async function listTastingNotes(
           name
         )
       )
-    `,
-      { count: "exact" }
-    )
-    .eq("user_id", userId);
+    `;
+  let dbQuery = supabase.from("tasting_notes").select(selectClause, { count: "exact" }).eq("user_id", userId);
 
   // Apply brand filter if provided
   if (brand_ids && brand_ids.length > 0) {
@@ -119,14 +111,15 @@ export async function listTastingNotes(
   }
 
   // Apply minimum rating filter if provided
-  if (min_rating !== undefined) {
+  if (min_rating !== undefined && min_rating !== null) {
     dbQuery = dbQuery.gte("overall_rating", min_rating);
   }
 
   // Apply sorting
-  dbQuery = dbQuery.order(sort_by, { ascending: sort_order === "asc" });
+  dbQuery = dbQuery.order(sort_by ?? "created_at", { ascending: sort_order === "asc" });
 
   // Apply pagination
+  const offset = (effectivePage - 1) * effectiveLimit;
   dbQuery = dbQuery.range(offset, offset + effectiveLimit - 1);
 
   // Execute query
@@ -136,7 +129,14 @@ export async function listTastingNotes(
   if (error) {
     // eslint-disable-next-line no-console
     console.error("Database query failed:", error);
-    throw new Error(`Failed to fetch tasting notes: ${error.message}`);
+    return {
+      data: [],
+      pagination: {
+        total: 0,
+        page: effectivePage,
+        limit: effectiveLimit,
+      },
+    };
   }
 
   // Handle case where no data is returned (valid scenario)

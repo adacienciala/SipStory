@@ -1,30 +1,35 @@
 import { selectTastingNotes } from "@/lib/services/tasting-notes.service";
 import { uuidSchema } from "@/lib/validators/uuid.validator";
 import type { APIRoute } from "astro";
+import type { ErrorResponseDTO } from "../../../types";
 
 export const prerender = false;
 
 /**
  * GET /api/tasting-notes/select
  * Retrieves exactly two specific tasting notes by their UUIDs for comparison
- *
- * Query Parameters:
- * - ids (required): Comma-separated UUIDs (exactly 2)
- *
- * Returns:
- * - 200 OK: Both notes found and returned
- * - 400 Bad Request: Invalid query parameters (missing ids, wrong count, invalid UUIDs)
- * - 401 Unauthorized: Missing or invalid authentication
- * - 404 Not Found: One or both notes don't exist or don't belong to user
- * - 500 Internal Server Error: Database or server error
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const { supabase, user } = locals;
 
     // Check authentication
-    if (!supabase || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized - Authentication required" }), {
+    if (!supabase) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Database client not available",
+      };
+      return new Response(JSON.stringify(errorResponse), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if user is authenticated
+    if (!user) {
+      const errorResponse: ErrorResponseDTO = {
+        error: "Unauthorized - Authentication required",
+      };
+      return new Response(JSON.stringify(errorResponse), {
         status: 401,
         headers: { "Content-Type": "application/json" },
       });

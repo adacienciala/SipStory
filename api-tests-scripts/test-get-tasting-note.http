@@ -3,30 +3,42 @@
 
 @baseUrl = http://localhost:3000/api/tasting-notes
 
-### Test 1: Get existing tasting note (ID: 123e4567-e89b-12d3-a456-426614174000)
-### Expected: 200 OK with tasting note data
-GET {{baseUrl}}/123e4567-e89b-12d3-a456-426614174000
+### AUTHENTICATION: 
+### 1. Run the login request in auth.http to get an access token
+### 2. Update the accessToken.
 
-### Test 2: Get second existing tasting note (ID: 223e4567-e89b-12d3-a456-426614174001)
+
+### Test 1: Get existing tasting note
+### Expected: 200 OK with tasting note data
+GET {{baseUrl}}/{{testNoteId}}
+Authorization: Bearer {{accessToken}}
+
+### Test 2: Get second existing tasting note
 ### Expected: 200 OK with different tasting note data
-GET {{baseUrl}}/223e4567-e89b-12d3-a456-426614174001
+GET {{baseUrl}}/{{testNoteId2}}
+Authorization: Bearer {{accessToken}}
 
 ### Test 3: Get non-existent tasting note (valid UUID)
 ### Expected: 404 Not Found
-GET {{baseUrl}}/999e4567-e89b-12d3-a456-426614174999
+GET {{baseUrl}}/{{nonExistentNoteId}}
+Authorization: Bearer {{accessToken}}
 
 ### Test 4: Invalid UUID format - not a UUID
 ### Expected: 400 Bad Request
 GET {{baseUrl}}/not-a-uuid
+Authorization: Bearer {{accessToken}}
 
 ### Test 5: Invalid UUID format - malformed UUID
 ### Expected: 400 Bad Request
 GET {{baseUrl}}/123-456-789
+Authorization: Bearer {{accessToken}}
 
 ### Test 6: Invalid UUID format - partial UUID
 ### Expected: 400 Bad Request
 GET {{baseUrl}}/123e4567-e89b-12d3
+Authorization: Bearer {{accessToken}}
 
 ### Test 7: Valid UUID with different format (uppercase)
-### Expected: 404 Not Found (UUID valid but doesn't match mock data)
+### Expected: 404 Not Found (UUID valid but doesn't exist)
 GET {{baseUrl}}/123E4567-E89B-12D3-A456-426614174000
+Authorization: Bearer {{accessToken}}

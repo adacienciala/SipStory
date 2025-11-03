@@ -25,16 +25,17 @@ export const tastingNotesQuerySchema = z.object({
   ...paginationQuerySchema.shape,
 
   // Filter parameters
-  brand_ids: commaSeparatedUuidsSchema.nullable(),
+  brand_ids: commaSeparatedUuidsSchema.nullable().optional(),
 
-  region_ids: commaSeparatedUuidsSchema.nullable(),
+  region_ids: commaSeparatedUuidsSchema.nullable().optional(),
 
   min_rating: z.coerce
     .number({ invalid_type_error: "must be a number" })
     .int("must be an integer")
     .min(1, "must be at least 1")
     .max(5, "must be at most 5")
-    .nullable(),
+    .nullable()
+    .optional(),
 
   // Sorting parameters
   sort_by: z
@@ -44,6 +45,7 @@ export const tastingNotesQuerySchema = z.object({
       }),
     })
     .nullable()
+    .optional()
     .default("created_at"),
 
   sort_order: z
@@ -51,6 +53,7 @@ export const tastingNotesQuerySchema = z.object({
       errorMap: () => ({ message: "must be one of: asc, desc" }),
     })
     .nullable()
+    .optional()
     .default("desc"),
 });
 

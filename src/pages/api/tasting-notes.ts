@@ -2,10 +2,10 @@ import type { APIRoute } from "astro";
 
 import { formatZodError, formatZodErrors } from "../../lib/helpers/format-error";
 // Import service for POST handler (used when database is ready)
-import { createTastingNote } from "../../lib/services/tasting-notes.service";
+import { createTastingNote, listTastingNotes } from "../../lib/services/tasting-notes.service";
 import { createTastingNoteSchema } from "../../lib/validators/create-tasting-note.validator";
 import { tastingNotesQuerySchema } from "../../lib/validators/tasting-notes.validator";
-import type { ErrorResponseDTO, TastingNotesListResponseDTO } from "../../types";
+import type { ErrorResponseDTO } from "../../types";
 
 // Disable prerendering for this API route (server-side only)
 export const prerender = false;
@@ -69,76 +69,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const validatedQuery = validationResult.data;
 
-    // TODO: Replace with actual service call when database is ready
-    // make sure to return paginated results (empty if wrong)
-    // const result = await listTastingNotes(supabase, mockUserId, validatedQuery);
+    const result = await listTastingNotes(supabase, user.id, validatedQuery);
 
-    // Return mocked data for now
-    const mockedResponse: TastingNotesListResponseDTO = {
-      data: [
-        {
-          id: "123e4567-e89b-12d3-a456-426614174000",
-          user_id: user.id,
-          blend: {
-            id: "blend-001",
-            name: "Ceremonial Grade",
-            brand: {
-              id: "brand-001",
-              name: "Ippodo Tea",
-            },
-            region: {
-              id: "region-001",
-              name: "Uji, Kyoto",
-            },
-          },
-          overall_rating: 5,
-          umami: 5,
-          bitter: 2,
-          sweet: 4,
-          foam: 5,
-          notes_koicha: "Rich umami, creamy texture, minimal bitterness",
-          notes_milk: "Smooth and balanced, complements milk well",
-          price_pln: 150,
-          purchase_source: "https://ippodo-tea.co.jp",
-          created_at: "2025-10-20T10:30:00Z",
-          updated_at: "2025-10-20T10:30:00Z",
-        },
-        {
-          id: "223e4567-e89b-12d3-a456-426614174001",
-          user_id: user.id,
-          blend: {
-            id: "blend-002",
-            name: "Daily Matcha",
-            brand: {
-              id: "brand-002",
-              name: "Maiko Tea",
-            },
-            region: {
-              id: "region-001",
-              name: "Uji, Kyoto",
-            },
-          },
-          overall_rating: 4,
-          umami: 3,
-          bitter: 3,
-          sweet: 3,
-          foam: 4,
-          notes_koicha: "Good for everyday use, balanced flavor",
-          notes_milk: "Works well with oat milk",
-          price_pln: 80,
-          purchase_source: "Local tea shop",
-          created_at: "2025-10-19T14:15:00Z",
-          updated_at: "2025-10-19T14:15:00Z",
-        },
-      ],
-      pagination: {
-        total: 2,
-        page: validatedQuery.page || 1,
-        limit: validatedQuery.limit || 20,
-      },
-    };
-
-    return new Response(JSON.stringify(mockedResponse), {
+    // Return successful response
+    return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -146,7 +80,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // Log error server-side (with context for debugging)
     // eslint-disable-next-line no-console
     console.error("API route error:", error);
-
     const errorResponse: ErrorResponseDTO = {
       error: "Internal server error",
     };
