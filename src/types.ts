@@ -237,11 +237,11 @@ export interface SelectNotesResponseDTO {
  * Query parameters for listing tasting notes with filters and sorting
  */
 export interface TastingNotesQueryDTO extends PaginationQueryDTO {
-  brand_ids?: string[]; // Array of brand UUIDs
-  region_ids?: string[]; // Array of region UUIDs
-  min_rating?: number; // 1-5
-  sort_by?: "created_at" | "updated_at" | "overall_rating";
-  sort_order?: "asc" | "desc";
+  brand_ids?: string[] | null; // Array of brand UUIDs
+  region_ids?: string[] | null; // Array of region UUIDs
+  min_rating?: number | null; // 1-5
+  sort_by?: "created_at" | "updated_at" | "overall_rating" | null;
+  sort_order?: "asc" | "desc" | null;
 }
 
 /**
