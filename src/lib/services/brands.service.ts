@@ -1,5 +1,35 @@
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { BrandsListResponseDTO, BrandsQueryDTO } from "../../types";
+import type { BrandResponseDTO, BrandsListResponseDTO, BrandsQueryDTO } from "../../types";
+
+/**
+ * Retrieves a single brand by its UUID
+ * Brands are public global data, accessible without authentication
+ *
+ * @param supabase - Supabase client instance
+ * @param id - UUID of the brand to retrieve
+ * @returns Brand entity if found, null otherwise
+ * @throws Error if database query fails
+ *
+ * @example
+ * const brand = await getBrandById(supabase, '550e8400-e29b-41d4-a716-446655440000');
+ * if (!brand) {
+ *   // Handle not found
+ * }
+ */
+export async function getBrandById(supabase: SupabaseClient, id: string): Promise<BrandResponseDTO | null> {
+  // Execute query with .single() to get exactly one row
+  const { data, error } = await supabase.from("brands").select("*").eq("id", id).limit(1).maybeSingle();
+
+  // Handle database errors
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Database query failed:", error);
+    throw new Error(`Failed to fetch brand: ${error.message}`);
+  }
+
+  // Return brand entity or null if not found
+  return data;
+}
 
 /**
  * Retrieves a paginated list of all brands with optional search

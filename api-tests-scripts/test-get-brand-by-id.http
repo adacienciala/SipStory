@@ -1,0 +1,59 @@
+### API Endpoint Test Suite
+### GET /api/brands/:id
+@endpointUrl = {{baseUrl}}/api/brands
+
+### NOTE: This endpoint does NOT require authentication (public read access)
+### Brands are global reference data accessible to all users
+
+### ============================================================================
+### SETUP - Get a valid brand ID for testing
+### ============================================================================
+
+### Setup: Get list of brands to obtain valid ID
+### Run this first to get a valid brand ID for subsequent tests
+GET {{endpointUrl}}?limit=1
+
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: Get existing brand (happy path)
+### Expected: 200 OK with brand entity (id, name, created_at)
+GET {{endpointUrl}}/{{testBrandId}}
+
+### ============================================================================
+### NOT FOUND CASES (404)
+### ============================================================================
+
+### Test 2: Get non-existent brand (valid UUID but doesn't exist)
+### Expected: 404 Not Found
+GET {{endpointUrl}}/{{nonExistentBrandId}}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 3: Invalid UUID format - not a UUID at all
+### Expected: 400 Bad Request - Invalid UUID format
+GET {{endpointUrl}}/invalid-uuid-format
+
+### Test 4: Invalid UUID format - malformed UUID (missing segments)
+### Expected: 400 Bad Request - Invalid UUID format
+GET {{endpointUrl}}/123-456-789
+
+### Test 5: Invalid UUID format - special characters
+### Expected: 400 Bad Request - Invalid UUID format
+GET {{endpointUrl}}/<script>alert('xss')</script>
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 6: UUID with uppercase letters (should work - UUIDs are case-insensitive)
+### Expected: Depends on database - likely 404 if UUID doesn't exist
+GET {{endpointUrl}}/550E8400-E29B-41D4-A716-446655440000
+
+### Test 7: UUID with mixed case
+### Expected: Depends on database - likely 404 if UUID doesn't exist
+GET {{endpointUrl}}/550e8400-E29B-41d4-A716-446655440000

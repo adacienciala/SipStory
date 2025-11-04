@@ -25,6 +25,7 @@ The SipStory API is organized around the following main resources, each correspo
 **URL Path:** `/api/tasting-notes`  
 **Description:** Retrieve a paginated list of the authenticated user's tasting notes with optional filtering  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -101,6 +102,7 @@ The SipStory API is organized around the following main resources, each correspo
 **URL Path:** `/api/tasting-notes/:id`  
 **Description:** Retrieve a single tasting note by its UUID  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -162,6 +164,7 @@ The SipStory API is organized around the following main resources, each correspo
 **URL Path:** `/api/tasting-notes`  
 **Description:** Create a new tasting note for the authenticated user  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Request Body:**
 
@@ -251,6 +254,7 @@ The SipStory API is organized around the following main resources, each correspo
 **URL Path:** `/api/tasting-notes/:id`  
 **Description:** Partially update an existing tasting note (owned by authenticated user). Brand, blend, and region cannot be changed.  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -348,6 +352,7 @@ The SipStory API is organized around the following main resources, each correspo
 **URL Path:** `/api/tasting-notes/:id`  
 **Description:** Permanently delete a tasting note (owned by authenticated user)  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -380,6 +385,7 @@ No body returned
 **URL Path:** `/api/tasting-notes/select`  
 **Description:** Retrieve two specific tasting notes
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -457,6 +463,7 @@ No body returned
 **URL Path:** `/api/brands`  
 **Description:** Retrieve a list of all brands (global, public access)  
 **Authentication:** Not Required (public read access)
+**Status:** ✅ **Implemented**
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -500,7 +507,8 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/brands/:id`  
 **Description:** Retrieve a single brand by its UUID  
-**Authentication:** Not Required (public read access)
+**Authentication:** Not Required (public read access)  
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -519,18 +527,37 @@ No body returned
 
 **Error Responses:**
 
-- **404 Not Found:** Brand does not exist
-  ```json
-  {
-    "error": "Brand not found"
-  }
-  ```
 - **400 Bad Request:** Invalid UUID format
   ```json
   {
     "error": "Invalid UUID format"
   }
   ```
+- **404 Not Found:** Brand does not exist
+  ```json
+  {
+    "error": "Brand not found"
+  }
+  ```
+- **500 Internal Server Error:** Database connection unavailable or server error
+  ```json
+  {
+    "error": "Database client not available"
+  }
+  ```
+  OR
+  ```json
+  {
+    "error": "Internal server error"
+  }
+  ```
+
+**Implementation Details:**
+
+- **File:** `src/pages/api/brands/[id].ts`
+- **Service:** `src/lib/services/brands.service.ts` (`getBrandById`)
+- **Validator:** `src/lib/validators/uuid.validator.ts` (`uuidSchema`)
+- **Test Script:** `api-tests-scripts/test-get-brand-by-id.http`
 
 ---
 
