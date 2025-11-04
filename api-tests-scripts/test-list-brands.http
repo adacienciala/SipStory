@@ -10,7 +10,7 @@
 ### ============================================================================
 
 ### Test 1: List brands with default pagination (happy path)
-### Expected: 200 OK with up to 50 brands
+### Expected: 200 OK with up to 20 brands
 GET {{endpointUrl}}
 
 ### Test 2: List brands with custom page and limit
@@ -82,8 +82,8 @@ GET {{endpointUrl}}?limit=0
 GET {{endpointUrl}}?limit=-10
 
 ### Test 18: Invalid limit (exceeds maximum)
-### Expected: 400 Bad Request - limit must be at most 200
-GET {{endpointUrl}}?limit=201
+### Expected: 400 Bad Request - limit must be at most 100
+GET {{endpointUrl}}?limit=101
 
 ### Test 19: Invalid limit (non-numeric)
 ### Expected: 400 Bad Request - limit must be a number

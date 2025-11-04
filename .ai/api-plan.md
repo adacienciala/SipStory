@@ -469,7 +469,7 @@ No body returned
 | Parameter | Type | Required | Description |
 | --------- | ------- | -------- | ------------------------------------------------ |
 | `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 50, max: 200) |
+| `limit` | integer | No | Items per page (default: 20, max: 100) |
 | `search` | string | No | Case-insensitive substring match on brand name |
 
 **Success Response (200 OK):**
@@ -574,7 +574,7 @@ No body returned
 | Parameter | Type | Required | Description |
 | --------- | ------- | -------- | ------------------------------------------------- |
 | `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 50, max: 200) |
+| `limit` | integer | No | Items per page (default: 20, max: 100) |
 | `search` | string | No | Case-insensitive substring match on region name |
 
 **Success Response (200 OK):**
@@ -763,7 +763,7 @@ No body returned
 | Parameter | Type | Required | Description |
 | ------------ | ------- | -------- | ------------------------------------------------ |
 | `page` | integer | No | Page number (default: 1) |
-| `limit` | integer | No | Items per page (default: 50, max: 200) |
+| `limit` | integer | No | Items per page (default: 20, max: 100) |
 | `brand_id` | uuid | No | Filter by brand UUID |
 | `region_id` | uuid | No | Filter by region UUID |
 | `search` | string | No | Case-insensitive substring match on blend name |
