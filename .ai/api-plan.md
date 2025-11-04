@@ -620,7 +620,8 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/regions/:id`  
 **Description:** Retrieve a single region by its UUID  
-**Authentication:** Not Required (public read access)
+**Authentication:** Not Required (public read access)  
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -651,6 +652,13 @@ No body returned
     "error": "Invalid UUID format"
   }
   ```
+
+**Implementation Details:**
+
+- **File:** `src/pages/api/regions/[id].ts`
+- **Service:** `src/lib/services/regions.service.ts` (`getRegionById`)
+- **Validator:** `src/lib/validators/uuid.validator.ts` (`uuidSchema`)
+- **Test Script:** `api-tests-scripts/test-get-region-by-id.http`
 
 ---
 
