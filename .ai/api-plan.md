@@ -568,7 +568,8 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/regions`  
 **Description:** Retrieve a list of all regions (global, public access)  
-**Authentication:** Not Required (public read access)
+**Authentication:** Not Required (public read access)  
+**Status:** ✅ **Implemented**
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -604,6 +605,13 @@ No body returned
     "error": "Invalid query parameters"
   }
   ```
+
+**Implementation Details:**
+
+- **File:** `src/pages/api/regions/index.ts`
+- **Service:** `src/lib/services/regions.service.ts` (`listRegions`)
+- **Validator:** `src/lib/validators/regions-query.validator.ts` (`regionsQuerySchema`)
+- **Test Script:** `api-tests-scripts/test-list-regions.http`
 
 ---
 

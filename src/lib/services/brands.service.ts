@@ -86,21 +86,9 @@ export async function listBrands(supabase: SupabaseClient, query: BrandsQueryDTO
     };
   }
 
-  // Handle case where no data is returned (valid scenario)
-  if (!data) {
-    return {
-      data: [],
-      pagination: {
-        total: count || 0,
-        page: effectivePage,
-        limit: effectiveLimit,
-      },
-    };
-  }
-
   // Return paginated response (no transformation needed - direct mapping)
   return {
-    data,
+    data: data || [],
     pagination: {
       total: count || 0,
       page: effectivePage,

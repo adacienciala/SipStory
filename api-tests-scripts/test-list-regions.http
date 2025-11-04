@@ -1,0 +1,78 @@
+### API Endpoint Test Suite
+### GET /api/regions
+@endpointUrl = {{baseUrl}}/api/regions
+
+### NOTE: This endpoint does NOT require authentication (public read access)
+### Regions are global reference data accessible to all users
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: List regions with default pagination (happy path)
+### Expected: 200 OK with up to 20 regions
+GET {{endpointUrl}}
+
+### Test 2: List regions with custom page and limit
+### Expected: 200 OK with requested page size
+GET {{endpointUrl}}?page=1&limit=10
+
+### Test 3: List regions with search (case-insensitive)
+### Expected: 200 OK with regions matching search term
+GET {{endpointUrl}}?search=uji
+
+### Test 4: List regions with search and pagination
+### Expected: 200 OK with filtered and paginated results
+GET {{endpointUrl}}?search=japan&page=1&limit=5
+
+### Test 5: List regions with limit=100 (maximum allowed)
+### Expected: 200 OK with up to 100 regions
+GET {{endpointUrl}}?limit=100
+
+### Test 6: List regions with search (no matches)
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?search=nonexistentregionxyz12345
+
+### Test 7: List regions with empty search string
+### Expected: 200 OK with all regions (search ignored)
+GET {{endpointUrl}}?search=
+
+### Test 8: List regions - page beyond available pages
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?page=999&limit=50
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 9: Invalid page (zero)
+### Expected: 400 Bad Request - page must be positive
+GET {{endpointUrl}}?page=0
+
+### Test 10: Invalid page (negative)
+### Expected: 400 Bad Request - page must be positive
+GET {{endpointUrl}}?page=-1
+
+### Test 11: Invalid page (non-numeric)
+### Expected: 400 Bad Request - page must be a number
+GET {{endpointUrl}}?page=abc
+
+### Test 12: Invalid limit (zero)
+### Expected: 400 Bad Request - limit must be at least 1
+GET {{endpointUrl}}?limit=0
+
+### Test 13: Invalid limit (exceeds maximum)
+### Expected: 400 Bad Request - limit must be at most 100
+GET {{endpointUrl}}?limit=101
+
+### Test 14: Invalid limit (non-numeric)
+### Expected: 400 Bad Request - limit must be a number
+GET {{endpointUrl}}?limit=fifty
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 15: Case sensitivity test (uppercase search)
+### Expected: 200 OK with case-insensitive match
+GET {{endpointUrl}}?search=UJI
