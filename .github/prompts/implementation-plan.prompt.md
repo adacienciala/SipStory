@@ -118,4 +118,4 @@ The final output should be a well-organized implementation plan in markdown form
 
 The final output should consist solely of the implementation plan in markdown format (maximum 9 steps) and should not duplicate or repeat any work done in the analysis section.
 
-Remember to save your implementation plan as [endpoint-name]-implementation-plan.md in #file:../../.ai/implementation-plans . Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
+Remember to save your implementation plan as [endpoint-name]-implementation-plan.md in #file:../../.ai/api . Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
