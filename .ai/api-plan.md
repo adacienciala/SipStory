@@ -670,6 +670,7 @@ No body returned
 **URL Path:** `/api/blends`  
 **Description:** Create a new blend with nested brand and region creation if they don't exist  
 **Authentication:** Required (Bearer token)
+**Status:** ✅ **Implemented**
 
 **Request Body:**
 

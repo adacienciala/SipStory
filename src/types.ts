@@ -260,9 +260,9 @@ export interface RegionsQueryDTO extends PaginationQueryDTO {
  * Query parameters for listing blends with filters and search
  */
 export interface BlendsQueryDTO extends PaginationQueryDTO {
-  brand_id?: string;
-  region_id?: string;
-  search?: string;
+  brand_id?: string | null;
+  region_id?: string | null;
+  search?: string | null;
 }
 
 /**

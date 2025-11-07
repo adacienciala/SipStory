@@ -1,0 +1,154 @@
+### API Endpoint Test Suite
+### GET /api/blends
+@endpointUrl = {{baseUrl}}/api/blends
+
+### NOTE: This endpoint does NOT require authentication (public read access)
+### Blends are global reference data accessible to all users
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### Test 1: List blends with default pagination (happy path)
+### Expected: 200 OK with up to 20 blends
+GET {{endpointUrl}}
+
+### Test 2: List blends with custom page and limit
+### Expected: 200 OK with requested page size
+GET {{endpointUrl}}?page=1&limit=10
+
+### Test 3: List blends with page 2
+### Expected: 200 OK with second page of results
+GET {{endpointUrl}}?page=2&limit=20
+
+### Test 4: Filter blends by brand_id
+### Expected: 200 OK with blends from specified brand
+GET {{endpointUrl}}?brand_id={{testBrandId}}
+
+### Test 5: Filter blends by region_id
+### Expected: 200 OK with blends from specified region
+GET {{endpointUrl}}?region_id={{testRegionId}}
+
+### Test 6: Filter blends by both brand_id and region_id
+### Expected: 200 OK with blends matching both filters
+GET {{endpointUrl}}?brand_id={{testBrandId}}&region_id={{testRegionId}}
+
+### Test 7: Search blends by name (case-insensitive)
+### Expected: 200 OK with blends matching search term
+GET {{endpointUrl}}?search=ceremonial
+
+### Test 8: Search blends with partial match
+### Expected: 200 OK with blends containing search term
+GET {{endpointUrl}}?search=grade
+
+### Test 9: Combined filters: brand and search
+### Expected: 200 OK with filtered and searched results
+GET {{endpointUrl}}?brand_id={{testBrandId}}&search=grade&limit=5
+
+### Test 10: Combined filters: all parameters
+### Expected: 200 OK with all filters applied
+GET {{endpointUrl}}?page=1&limit=10&brand_id={{testBrandId}}&region_id={{testRegionId}}&search=wakaki
+
+### Test 11: List blends with limit=1 (minimum practical)
+### Expected: 200 OK with single blend
+GET {{endpointUrl}}?limit=1
+
+### Test 12: List blends with limit=100 (maximum allowed)
+### Expected: 200 OK with up to 100 blends
+GET {{endpointUrl}}?limit=100
+
+### Test 13: Search with no matches
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?search=nonexistentblendxyz12345
+
+### Test 14: Empty search string
+### Expected: 200 OK with all blends (search ignored)
+GET {{endpointUrl}}?search=
+
+### Test 15: Search with whitespace (trimmed)
+### Expected: 200 OK with trimmed search term applied
+GET {{endpointUrl}}?search=%20ceremonial%20
+
+### Test 16: Page beyond available pages
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?page=999&limit=50
+
+### Test 17: Filter by non-existent brand_id (valid UUID)
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?brand_id={{nonExistentBrandId}}
+
+### Test 18: Filter by non-existent region_id (valid UUID)
+### Expected: 200 OK with empty data array
+GET {{endpointUrl}}?region_id={{nonExistentRegionId}}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### Test 19: Invalid page (zero)
+### Expected: 400 Bad Request - page must be positive
+GET {{endpointUrl}}?page=0
+
+### Test 20: Invalid page (negative)
+### Expected: 400 Bad Request - page must be positive
+GET {{endpointUrl}}?page=-1
+
+### Test 21: Invalid page (non-numeric)
+### Expected: 400 Bad Request - page must be a number
+GET {{endpointUrl}}?page=abc
+
+### Test 22: Invalid limit (zero)
+### Expected: 400 Bad Request - limit must be at least 1
+GET {{endpointUrl}}?limit=0
+
+### Test 23: Invalid limit (negative)
+### Expected: 400 Bad Request - limit must be positive
+GET {{endpointUrl}}?limit=-10
+
+### Test 24: Invalid limit (exceeds maximum)
+### Expected: 400 Bad Request - limit must be at most 100
+GET {{endpointUrl}}?limit=101
+
+### Test 25: Invalid limit (non-numeric)
+### Expected: 400 Bad Request - limit must be a number
+GET {{endpointUrl}}?limit=fifty
+
+### Test 26: Invalid brand_id UUID format
+### Expected: 400 Bad Request - Invalid brand UUID format
+GET {{endpointUrl}}?brand_id=invalid-uuid
+
+### Test 27: Invalid region_id UUID format
+### Expected: 400 Bad Request - Invalid region UUID format
+GET {{endpointUrl}}?region_id=not-a-uuid
+
+### Test 28: Invalid brand_id UUID format (malformed)
+### Expected: 400 Bad Request - Invalid brand UUID format
+GET {{endpointUrl}}?brand_id=123-456-789
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### Test 29: Search with special characters
+### Expected: 200 OK with escaped search (no SQL injection)
+GET {{endpointUrl}}?search=%27%22%3B%25
+
+### Test 30: Search with only whitespace
+### Expected: 200 OK with all blends (whitespace trimmed, search ignored)
+GET {{endpointUrl}}?search=%20%20%20
+
+### Test 31: Case sensitivity test (uppercase search)
+### Expected: 200 OK with case-insensitive match
+GET {{endpointUrl}}?search=CEREMONIAL
+
+### Test 32: Case sensitivity test (mixed case search)
+### Expected: 200 OK with case-insensitive match
+GET {{endpointUrl}}?search=CeReMoNiAl
+
+### Test 33: Multiple filters with pagination
+### Expected: 200 OK with all parameters applied
+GET {{endpointUrl}}?brand_id={{testBrandId}}&region_id={{testRegionId}}&search=matcha&page=1&limit=5
+
+### Test 34: Verify pagination metadata accuracy
+### Expected: 200 OK with correct total, page, and limit in response
+GET {{endpointUrl}}?page=1&limit=10

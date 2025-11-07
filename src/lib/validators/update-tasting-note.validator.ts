@@ -3,7 +3,7 @@ import { z } from "zod";
 export const updateTastingNoteSchema = z
   .object({
     // Optional rating fields
-    overall_rating: z.number().int().min(1).max(5).optional(),
+    overall_rating: z.number().int().min(1).max(5).nullable().optional(),
     umami: z.number().int().min(1).max(5).nullable().optional(),
     bitter: z.number().int().min(1).max(5).nullable().optional(),
     sweet: z.number().int().min(1).max(5).nullable().optional(),
