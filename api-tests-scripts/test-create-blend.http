@@ -1,0 +1,276 @@
+### API Endpoint Test Suite
+### POST /api/blends
+
+@endpointUrl = {{baseUrl}}/api/blends
+
+### AUTHENTICATION: 
+### 1. Run the login request in auth.http to get an access token
+### 2. Update the accessToken variable below
+
+### NOTE: This endpoint creates blends with nested brand and region entities
+### Entities can be referenced by ID (existing) or by name (will be created if not found)
+
+### ============================================================================
+### SUCCESS CASES
+### ============================================================================
+
+### 1. Create blend with new brand and new region (by name)
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Isuzu",
+  "brand": {
+    "name": "Marukyu Koyamaen"
+  },
+  "region": {
+    "name": "Uji, Japan"
+  }
+}
+
+### 2. Create blend with existing brand and region (by ID)
+### Prerequisites: Run test 1 first, then replace UUIDs below with actual IDs
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Aoarashi",
+  "brand": {
+    "id": "7b5a094a-8972-4fd0-9a54-0bccc615e7ec"
+  },
+  "region": {
+    "id": "3dc9b0e3-ef67-4e2c-9c12-fc68e858abb9"
+  }
+}
+
+### 3. Create blend with mixed resolution (existing brand by ID, new region by name)
+### Prerequisites: Run test 1 first, then replace brand UUID with actual ID
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Organic Matcha",
+  "brand": {
+    "id": "7b5a094a-8972-4fd0-9a54-0bccc615e7ec"
+  },
+  "region": {
+    "name": "Kagoshima, Japan"
+  }
+}
+
+### ============================================================================
+### VALIDATION ERROR CASES (400 Bad Request)
+### ============================================================================
+
+### 4. Missing required field: blend name
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 5. Empty blend name
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 6. Brand XOR violation: both id and name provided
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 7. Brand XOR violation: neither id nor name provided
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {},
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 8. Region XOR violation: both id and name provided
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "name": "Test Region"
+  }
+}
+
+### 9. Invalid UUID format for brand ID
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "id": "invalid-uuid"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 10. Invalid UUID format for region ID
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "id": "not-a-uuid"
+  }
+}
+
+### ============================================================================
+### NOT FOUND CASES (404 Not Found)
+### ============================================================================
+
+### 11. Brand ID does not exist in database
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "id": "00000000-0000-0000-0000-999999999999"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 12. Region ID does not exist in database
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "id": "00000000-0000-0000-0000-999999999999"
+  }
+}
+
+### ============================================================================
+### CONFLICT CASE (409 Conflict)
+### ============================================================================
+
+### 13. Duplicate blend (same name, brand_id, region_id)
+### Prerequisites: Run test 1 first, then run this test with same data
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Isuzu",
+  "brand": {
+    "name": "Marukyu Koyamaen"
+  },
+  "region": {
+    "name": "Uji, Japan"
+  }
+}
+
+### ============================================================================
+### AUTHENTICATION ERROR (401 Unauthorized)
+### ============================================================================
+
+### 14. Missing authentication token
+POST {{endpointUrl}}
+Content-Type: application/json
+
+{
+  "name": "Test Blend",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### ============================================================================
+### EDGE CASES
+### ============================================================================
+
+### 15. Long blend name at maximum length
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "This is a very long blend name designed to test the maximum length limit of the blend name field in the database schema",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}
+
+### 16. Blend name with special characters
+POST {{endpointUrl}}
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "name": "Matcha № 1 - Premium (100g)",
+  "brand": {
+    "name": "Test Brand"
+  },
+  "region": {
+    "name": "Test Region"
+  }
+}

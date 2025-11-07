@@ -77,8 +77,6 @@ export type RegionResponseDTO = RegionEntity;
 export interface BlendResponseDTO {
   id: string;
   name: string;
-  brand_id: string;
-  region_id: string;
   created_at: string;
   brand: NestedBrandDTO;
   region: NestedRegionDTO;
