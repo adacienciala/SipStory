@@ -325,3 +325,46 @@ export async function listBlends(supabase: SupabaseClient, query: BlendsQueryDTO
     },
   };
 }
+
+/**
+ * Retrieves a single blend by its UUID with nested brand and region data
+ * Blends are public global data, accessible without authentication
+ *
+ * @param supabase - Supabase client instance
+ * @param id - UUID of the blend to retrieve
+ * @returns Blend entity with nested brand/region if found, null otherwise
+ * @throws Error if database query fails
+ *
+ * @example
+ * const blend = await getBlendById(supabase, '550e8400-e29b-41d4-a716-446655440000');
+ * if (!blend) {
+ *   // Handle not found
+ * }
+ */
+export async function getBlendById(supabase: SupabaseClient, id: string): Promise<BlendResponseDTO | null> {
+  // Execute query with nested joins for brand and region
+  const { data, error } = await supabase
+    .from("blends")
+    .select(
+      `
+      id,
+      name,
+      created_at,
+      brand:brands!inner (id, name),
+      region:regions!inner (id, name)
+    `
+    )
+    .eq("id", id)
+    .limit(1)
+    .maybeSingle();
+
+  // Handle database errors
+  if (error) {
+    // eslint-disable-next-line no-console
+    console.error("Database query failed:", error);
+    throw new Error(`Failed to fetch blend: ${error.message}`);
+  }
+
+  // Return blend entity or null if not found
+  return data;
+}

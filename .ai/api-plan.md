@@ -774,7 +774,8 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/blends`  
 **Description:** Retrieve a list of all blends with their associated brand and region  
-**Authentication:** Not Required (public read access)
+**Authentication:** Not Required (public read access)  
+**Status:** ✅ **Implemented**
 
 **Query Parameters:**
 | Parameter | Type | Required | Description |
@@ -821,6 +822,13 @@ No body returned
   }
   ```
 
+**Implementation Details:**
+
+- **File:** `src/pages/api/blends.ts` (GET handler)
+- **Service:** `src/lib/services/blends.service.ts` (`listBlends`)
+- **Validator:** `src/lib/validators/blends-query.validator.ts` (`blendsQuerySchema`)
+- **Test Script:** `api-tests-scripts/test-list-blends.http`
+
 ---
 
 #### 2.4.2. Get Blend by ID
@@ -828,7 +836,8 @@ No body returned
 **HTTP Method:** `GET`  
 **URL Path:** `/api/blends/:id`  
 **Description:** Retrieve a single blend by its UUID  
-**Authentication:** Not Required (public read access)
+**Authentication:** Not Required (public read access)  
+**Status:** ✅ **Implemented**
 
 **Path Parameters:**
 | Parameter | Type | Required | Description |
@@ -867,6 +876,13 @@ No body returned
     "error": "Invalid UUID format"
   }
   ```
+
+**Implementation Details:**
+
+- **File:** `src/pages/api/blends/[id].ts`
+- **Service:** `src/lib/services/blends.service.ts` (`getBlendById`)
+- **Validator:** `src/lib/validators/uuid.validator.ts` (`uuidSchema`)
+- **Test Script:** `api-tests-scripts/test-get-blend-by-id.http`
 
 ---
 
