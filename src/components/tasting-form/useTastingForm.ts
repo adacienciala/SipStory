@@ -1,0 +1,302 @@
+/**
+ * Custom hook for managing tasting form state and logic
+ */
+
+import { useCallback, useEffect, useState } from "react";
+import type { TastingNoteResponseDTO } from "../../types";
+import type { TastingFormErrors, TastingFormProps, TastingNoteFormViewModel } from "./types";
+
+/**
+ * Initializes form data from initialData (edit mode) or empty values (create mode)
+ */
+function initializeFormData(initialData?: TastingNoteResponseDTO): TastingNoteFormViewModel {
+  if (initialData) {
+    return {
+      brandName: initialData.blend.brand.name,
+      blendName: initialData.blend.name,
+      regionName: initialData.blend.region.name,
+      overallRating: initialData.overall_rating,
+      umami: initialData.umami,
+      bitter: initialData.bitter,
+      sweet: initialData.sweet,
+      foam: initialData.foam,
+      notesKoicha: initialData.notes_koicha,
+      notesMilk: initialData.notes_milk,
+      pricePln: initialData.price_pln,
+      purchaseSource: initialData.purchase_source,
+    };
+  }
+
+  return {
+    brandName: "",
+    blendName: "",
+    regionName: "",
+    overallRating: 0,
+    umami: null,
+    bitter: null,
+    sweet: null,
+    foam: null,
+    notesKoicha: null,
+    notesMilk: null,
+    pricePln: null,
+    purchaseSource: null,
+  };
+}
+
+/**
+ * Validates form data according to DTO constraints
+ */
+function validateFormData(data: TastingNoteFormViewModel, isEditMode: boolean): TastingFormErrors {
+  const errors: TastingFormErrors = {};
+
+  // Required fields
+  if (!data.brandName.trim()) {
+    errors.brandName = "Brand name is required";
+  } else if (data.brandName.length > 255) {
+    errors.brandName = "Brand name must not exceed 255 characters";
+  }
+
+  if (!data.blendName.trim()) {
+    errors.blendName = "Blend name is required";
+  } else if (data.blendName.length > 255) {
+    errors.blendName = "Blend name must not exceed 255 characters";
+  }
+
+  if (data.overallRating < 1 || data.overallRating > 5) {
+    errors.overallRating = "Overall rating is required (1-5 stars)";
+  }
+
+  // Optional fields validation
+  if (data.regionName && data.regionName.length > 255) {
+    errors.regionName = "Region name must not exceed 255 characters";
+  }
+
+  if (data.umami !== null && (data.umami < 1 || data.umami > 5)) {
+    errors.umami = "Umami rating must be between 1 and 5";
+  }
+
+  if (data.bitter !== null && (data.bitter < 1 || data.bitter > 5)) {
+    errors.bitter = "Bitter rating must be between 1 and 5";
+  }
+
+  if (data.sweet !== null && (data.sweet < 1 || data.sweet > 5)) {
+    errors.sweet = "Sweet rating must be between 1 and 5";
+  }
+
+  if (data.foam !== null && (data.foam < 1 || data.foam > 5)) {
+    errors.foam = "Foam rating must be between 1 and 5";
+  }
+
+  if (data.notesKoicha && data.notesKoicha.length > 1000) {
+    errors.notesKoicha = "Notes as Koicha must not exceed 1000 characters";
+  }
+
+  if (data.notesMilk && data.notesMilk.length > 1000) {
+    errors.notesMilk = "Notes with Milk must not exceed 1000 characters";
+  }
+
+  if (data.pricePln !== null && data.pricePln < 0) {
+    errors.pricePln = "Price must be a non-negative number";
+  }
+
+  if (data.purchaseSource && data.purchaseSource.length > 500) {
+    errors.purchaseSource = "Purchase source must not exceed 500 characters";
+  }
+
+  return errors;
+}
+
+/**
+ * Custom hook for tasting form state management
+ */
+export function useTastingForm(props: TastingFormProps) {
+  const { initialData } = props;
+  const isEditMode = !!initialData;
+
+  // Form state
+  const [formData, setFormData] = useState<TastingNoteFormViewModel>(() => initializeFormData(initialData));
+  const [errors, setErrors] = useState<TastingFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Handle input changes
+  const handleInputChange = useCallback(
+    <K extends keyof TastingNoteFormViewModel>(field: K, value: TastingNoteFormViewModel[K]) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      setIsDirty(true);
+      // Clear field error on change
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
+  // Handle form submission
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setApiError(null);
+
+      // Validate form data
+      const validationErrors = validateFormData(formData, isEditMode);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      setIsSubmitting(true);
+
+      try {
+        if (isEditMode) {
+          // Update existing tasting note
+          const response = await fetch(`/api/tasting-notes/${initialData.id}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              overall_rating: formData.overallRating,
+              umami: formData.umami,
+              bitter: formData.bitter,
+              sweet: formData.sweet,
+              foam: formData.foam,
+              notes_koicha: formData.notesKoicha,
+              notes_milk: formData.notesMilk,
+              price_pln: formData.pricePln,
+              purchase_source: formData.purchaseSource,
+            }),
+          });
+
+          if (!response.ok) {
+            if (response.status === 400) {
+              const errorData = await response.json();
+              if (errorData.details) {
+                const fieldErrors: TastingFormErrors = {};
+                errorData.details.forEach((detail: { field: string; message: string }) => {
+                  fieldErrors[detail.field as keyof TastingFormErrors] = detail.message;
+                });
+                setErrors(fieldErrors);
+              } else {
+                setApiError(errorData.error || "Validation failed");
+              }
+              return;
+            } else if (response.status === 404) {
+              setApiError("Tasting note not found");
+              return;
+            } else {
+              setApiError("An unexpected error occurred. Please try again.");
+              return;
+            }
+          }
+
+          // Success - redirect to detail page
+          setIsDirty(false);
+          window.location.href = `/tastings/${initialData.id}`;
+        } else {
+          // Step 1: Create or find blend
+          const blendResponse = await fetch("/api/blends", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: formData.blendName,
+              brand: {
+                name: formData.brandName,
+              },
+              region: {
+                name: formData.regionName || null,
+              },
+            }),
+          });
+
+          if (!blendResponse.ok) {
+            const errorData = await blendResponse.json();
+            setApiError(errorData.error || "Failed to create blend. Please try again.");
+            return;
+          }
+
+          const blend = await blendResponse.json();
+
+          // Step 2: Create tasting note
+          const noteResponse = await fetch("/api/tasting-notes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              blend_id: blend.id,
+              overall_rating: formData.overallRating,
+              umami: formData.umami,
+              bitter: formData.bitter,
+              sweet: formData.sweet,
+              foam: formData.foam,
+              notes_koicha: formData.notesKoicha,
+              notes_milk: formData.notesMilk,
+              price_pln: formData.pricePln,
+              purchase_source: formData.purchaseSource,
+            }),
+          });
+
+          if (!noteResponse.ok) {
+            if (noteResponse.status === 400) {
+              const errorData = await noteResponse.json();
+              if (errorData.details) {
+                const fieldErrors: TastingFormErrors = {};
+                errorData.details.forEach((detail: { field: string; message: string }) => {
+                  fieldErrors[detail.field as keyof TastingFormErrors] = detail.message;
+                });
+                setErrors(fieldErrors);
+              } else {
+                setApiError(errorData.error || "Validation failed");
+              }
+              return;
+            } else {
+              setApiError("An unexpected error occurred. Please try again.");
+              return;
+            }
+          }
+
+          // Success - redirect to dashboard
+          setIsDirty(false);
+          window.location.href = "/dashboard";
+        }
+      } catch (err) {
+        console.error("Form submission error:", err);
+        setApiError("A network error occurred. Please check your connection and try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formData, isEditMode, initialData, errors]
+  );
+
+  // Warn user about unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty && !isSubmitting) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty, isSubmitting]);
+
+  return {
+    formData,
+    errors,
+    isSubmitting,
+    apiError,
+    isEditMode,
+    handleInputChange,
+    handleSubmit,
+  };
+}

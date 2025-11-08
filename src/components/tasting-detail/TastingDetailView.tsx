@@ -31,7 +31,7 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
-            {note.brandName} - {note.blendName}
+            {note.brandName} | {note.blendName}
           </h1>
           <p className="text-sm text-gray-500">Last updated: {note.updatedAt}</p>
         </div>

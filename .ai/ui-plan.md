@@ -64,13 +64,15 @@ The structure is centered around a few key views: a dashboard for listing tastin
 
 ### 2.5. Create/Edit Form
 
+**Status:** ✅ **Implemented**
+
 - **View Path**: `/tastings/new`, `/tastings/[id]/edit`
 - **Main Purpose**: To provide a form for users to create a new tasting note or update an existing one.
 - **Key Information to Display**: A form with inputs for all tasting note fields. Required fields are clearly marked.
-- **Key View Components**: `TastingForm`, `AutocompleteInput` (Combobox), `StarRating`, `DotRating`, `Input`, `Textarea`, `Button`.
+- **Key View Components**: `TastingForm`, `AutocompleteInput` (Combobox), `StarRatingInput`, `DotRatingInput`, `Input`, `Textarea`, `Button`.
 - **UX, Accessibility, and Security Considerations**:
-  - **UX**: Autocomplete for brand, blend, and region suggests from the user's history. Validation errors are shown inline on blur. A browser confirmation dialog prevents accidental navigation away from an unsaved form.
-  - **Accessibility**: All form fields have labels. Required fields are indicated with an asterisk and screen-reader-only text. Error messages are associated with their respective inputs.
+  - **UX**: Autocomplete for brand, blend, and region suggests from the user's history. Validation errors are shown inline. A browser confirmation dialog prevents accidental navigation away from an unsaved form.
+  - **Accessibility**: All form fields have labels. Required fields are indicated with an asterisk. Error messages are associated with their respective inputs.
   - **Security**: Input is validated on the client and server (via Zod schemas) to prevent invalid data submission.
 
 ### 2.6. Comparison View

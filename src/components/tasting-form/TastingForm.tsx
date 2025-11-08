@@ -1,0 +1,228 @@
+/**
+ * TastingForm Component
+ * Main form for creating and editing tasting notes
+ */
+
+import { Loader2 } from "lucide-react";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { AutocompleteInput } from "./AutocompleteInput";
+import { DotRatingInput } from "./DotRatingInput";
+import { StarRatingInput } from "./StarRatingInput";
+import type { TastingFormProps } from "./types";
+import { useTastingForm } from "./useTastingForm";
+
+export function TastingForm(props: TastingFormProps) {
+  const { brands, regions, blends } = props;
+  const { formData, errors, isSubmitting, apiError, isEditMode, handleInputChange, handleSubmit } =
+    useTastingForm(props);
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* API Error Message */}
+      {apiError && (
+        <div className="rounded-md bg-red-50 p-4 border border-red-200">
+          <p className="text-sm text-red-800">{apiError}</p>
+        </div>
+      )}
+
+      {/* Basic Information Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+
+        {/* Brand Name */}
+        <AutocompleteInput
+          label="Brand"
+          value={formData.brandName}
+          onChange={(value) => handleInputChange("brandName", value)}
+          suggestions={brands}
+          placeholder="Select or enter brand name"
+          required
+          disabled={isEditMode}
+          error={errors.brandName}
+        />
+
+        {/* Blend Name */}
+        <AutocompleteInput
+          label="Blend"
+          value={formData.blendName}
+          onChange={(value) => handleInputChange("blendName", value)}
+          suggestions={blends}
+          placeholder="Select or enter blend name"
+          required
+          disabled={isEditMode}
+          error={errors.blendName}
+        />
+
+        {/* Region */}
+        <AutocompleteInput
+          label="Region"
+          value={formData.regionName}
+          onChange={(value) => handleInputChange("regionName", value)}
+          suggestions={regions}
+          placeholder="Select or enter region (optional)"
+          disabled={isEditMode}
+          error={errors.regionName}
+        />
+      </section>
+
+      {/* Overall Rating Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Overall Rating</h2>
+
+        <StarRatingInput
+          label="Overall Rating"
+          value={formData.overallRating}
+          onChange={(value) => handleInputChange("overallRating", value)}
+          required
+          disabled={isSubmitting}
+          error={errors.overallRating}
+        />
+      </section>
+
+      {/* Detailed Ratings Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Detailed Ratings</h2>
+        <p className="text-sm text-gray-600">Optional - Rate specific characteristics</p>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DotRatingInput
+            label="Umami"
+            value={formData.umami}
+            onChange={(value) => handleInputChange("umami", value)}
+            disabled={isSubmitting}
+            error={errors.umami}
+          />
+
+          <DotRatingInput
+            label="Bitter"
+            value={formData.bitter}
+            onChange={(value) => handleInputChange("bitter", value)}
+            disabled={isSubmitting}
+            error={errors.bitter}
+          />
+
+          <DotRatingInput
+            label="Sweet"
+            value={formData.sweet}
+            onChange={(value) => handleInputChange("sweet", value)}
+            disabled={isSubmitting}
+            error={errors.sweet}
+          />
+
+          <DotRatingInput
+            label="Foam Quality"
+            value={formData.foam}
+            onChange={(value) => handleInputChange("foam", value)}
+            disabled={isSubmitting}
+            error={errors.foam}
+          />
+        </div>
+      </section>
+
+      {/* Tasting Notes Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Tasting Notes</h2>
+
+        {/* Notes as Koicha */}
+        <div className="space-y-2">
+          <Label htmlFor="notesKoicha" className="text-sm font-medium text-gray-700">
+            Notes as Koicha
+          </Label>
+          <Textarea
+            id="notesKoicha"
+            value={formData.notesKoicha || ""}
+            onChange={(e) => handleInputChange("notesKoicha", e.target.value || null)}
+            placeholder="Describe your experience tasting this matcha as koicha (thick tea)..."
+            disabled={isSubmitting}
+            rows={4}
+            maxLength={1000}
+            className={errors.notesKoicha ? "border-red-500 focus-visible:ring-red-500" : ""}
+          />
+          {errors.notesKoicha && <p className="text-sm text-red-500">{errors.notesKoicha}</p>}
+          <p className="text-xs text-gray-500">{formData.notesKoicha?.length || 0}/1000 characters</p>
+        </div>
+
+        {/* Notes with Milk */}
+        <div className="space-y-2">
+          <Label htmlFor="notesMilk" className="text-sm font-medium text-gray-700">
+            Notes with Milk
+          </Label>
+          <Textarea
+            id="notesMilk"
+            value={formData.notesMilk || ""}
+            onChange={(e) => handleInputChange("notesMilk", e.target.value || null)}
+            placeholder="Describe your experience tasting this matcha with milk..."
+            disabled={isSubmitting}
+            rows={4}
+            maxLength={1000}
+            className={errors.notesMilk ? "border-red-500 focus-visible:ring-red-500" : ""}
+          />
+          {errors.notesMilk && <p className="text-sm text-red-500">{errors.notesMilk}</p>}
+          <p className="text-xs text-gray-500">{formData.notesMilk?.length || 0}/1000 characters</p>
+        </div>
+      </section>
+
+      {/* Purchase Details Section */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-900">Purchase Details</h2>
+
+        {/* Price */}
+        <div className="space-y-2">
+          <Label htmlFor="pricePln" className="text-sm font-medium text-gray-700">
+            Price per 100g (PLN)
+          </Label>
+          <Input
+            id="pricePln"
+            type="number"
+            value={formData.pricePln ?? ""}
+            onChange={(e) => handleInputChange("pricePln", e.target.value ? Number(e.target.value) : null)}
+            placeholder="0.00"
+            disabled={isSubmitting}
+            min="0"
+            step="0.01"
+            className={errors.pricePln ? "border-red-500 focus-visible:ring-red-500" : ""}
+          />
+          {errors.pricePln && <p className="text-sm text-red-500">{errors.pricePln}</p>}
+        </div>
+
+        {/* Purchase Source */}
+        <div className="space-y-2">
+          <Label htmlFor="purchaseSource" className="text-sm font-medium text-gray-700">
+            Purchase Source
+          </Label>
+          <Input
+            id="purchaseSource"
+            type="text"
+            value={formData.purchaseSource || ""}
+            onChange={(e) => handleInputChange("purchaseSource", e.target.value || null)}
+            placeholder="URL or shop name..."
+            disabled={isSubmitting}
+            maxLength={500}
+            className={errors.purchaseSource ? "border-red-500 focus-visible:ring-red-500" : ""}
+          />
+          {errors.purchaseSource && <p className="text-sm text-red-500">{errors.purchaseSource}</p>}
+        </div>
+      </section>
+
+      {/* Form Actions */}
+      <div className="flex items-center justify-end gap-4 border-t pt-6">
+        <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isSubmitting}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {isEditMode ? "Updating..." : "Creating..."}
+            </>
+          ) : (
+            <>{isEditMode ? "Update Tasting Note" : "Create Tasting Note"}</>
+          )}
+        </Button>
+      </div>
+    </form>
+  );
+}
