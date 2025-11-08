@@ -185,15 +185,6 @@ The following features and functionalities are explicitly out of scope for the M
 ### Edge Cases
 
 - ID: US-013
-- Title: Empty Dashboard State
-- Description: As a new user who has completed onboarding, I want to see a helpful message on my dashboard when I have not yet created any tasting notes.
-- Acceptance Criteria:
-  - Given I am a new user and have not created any tasting notes.
-  - When I view my dashboard.
-  - Then I see a message indicating that I have no notes yet.
-  - And this message includes a prominent call-to-action button or link to "Add Your First Tasting".
-
-- ID: US-014
 - Title: Form Validation for Required Fields
 - Description: As a user, I want to be prevented from submitting the new tasting form if I haven't filled out the mandatory fields.
 - Acceptance Criteria:
