@@ -1,6 +1,12 @@
 ---
 import GetStartedButton from "../components/GetStartedButton.tsx";
 import Layout from "../layouts/Layout.astro";
+
+const user = Astro.locals.user;
+
+if (user) {
+  return Astro.redirect("/dashboard", 302);
+}
 ---
 
 <Layout title="SipStory - Track every sip, tell every story">

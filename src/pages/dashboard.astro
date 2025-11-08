@@ -1,0 +1,23 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const { user } = Astro.locals;
+
+// Check if authenticated user needs onboarding
+if (user) {
+  // Check if user has any tasting notes using the api/tasting-notes. If no error and no tasting notes, redirect to onboarding
+  const response = await fetch(new URL("/api/tasting-notes", Astro.url), {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+  if (response.ok) {
+    const tastingNotes = await response.json();
+    if (!tastingNotes || tastingNotes.data.length === 0) {
+      return Astro.redirect("/onboarding");
+    }
+  }
+}
+---
+
+<Layout title="SipStory - Track every sip, tell every story" />
