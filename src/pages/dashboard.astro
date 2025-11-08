@@ -1,23 +1,31 @@
 ---
+import DashboardView from "../components/dashboard/DashboardView";
 import Layout from "../layouts/Layout.astro";
+import { listTastingNotes } from "../lib/services/tasting-notes.service";
 
-const { user } = Astro.locals;
+// Get user from middleware
+const user = Astro.locals.user;
 
-// Check if authenticated user needs onboarding
-if (user) {
-  // Check if user has any tasting notes using the api/tasting-notes. If no error and no tasting notes, redirect to onboarding
-  const response = await fetch(new URL("/api/tasting-notes", Astro.url), {
-    headers: {
-      Cookie: Astro.request.headers.get("Cookie") || "",
-    },
-  });
-  if (response.ok) {
-    const tastingNotes = await response.json();
-    if (!tastingNotes || tastingNotes.data.length === 0) {
-      return Astro.redirect("/onboarding");
-    }
-  }
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect("/login", 302);
+}
+
+// Fetch initial tasting notes
+const supabase = Astro.locals.supabase;
+const initialData = await listTastingNotes(supabase, user.id, {
+  page: 1,
+  limit: 12,
+  sort_by: "created_at",
+  sort_order: "desc",
+});
+
+// Redirect to onboarding if user has no tasting notes
+if (initialData.data.length === 0) {
+  return Astro.redirect("/onboarding", 302);
 }
 ---
 
-<Layout title="SipStory - Track every sip, tell every story" />
+<Layout title="Dashboard - SipStory">
+  <DashboardView client:load initialData={initialData} />
+</Layout>

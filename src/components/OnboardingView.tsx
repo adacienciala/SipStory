@@ -96,7 +96,7 @@ export default function OnboardingView() {
           </h2>
 
           <Card>
-            <CardContent className="pt-6">
+            <CardContent>
               <ol className="space-y-4 list-decimal list-inside text-muted-foreground">
                 <li className="text-sm leading-relaxed">
                   <span className="font-medium text-foreground">Choose your matcha:</span> Enter the brand name and

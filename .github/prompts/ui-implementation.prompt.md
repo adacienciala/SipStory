@@ -60,6 +60,9 @@ Execute the following steps to implement the frontend view:
    - Implement any performance optimizations specified in the plan or rules.
    - Ensure efficient rendering and minimal unnecessary re-renders.
 
+8. Documentation:
+   - After completing the implementation, add "**Status:** ✅ **Implemented**" in the #file:../../.ai/ui-plan.md file under the relevant section for this view.
+
 Throughout the implementation process, strictly adhere to the provided implementation rules. These rules take precedence over any general best practices that may conflict with them.
 
 Ensure that your implementation accurately reflects the provided implementation plan and adheres to all specified rules. Pay special attention to component structure, API integration, and handling of user interactions.

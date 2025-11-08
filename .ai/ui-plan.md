@@ -10,6 +10,8 @@ The structure is centered around a few key views: a dashboard for listing tastin
 
 ### 2.1. Authentication Views (Login/Register)
 
+**Status:** ✅ **Implemented**
+
 - **View Path**: `/login`, `/register`
 - **Main Purpose**: To allow users to sign in to their existing account or create a new one.
 - **Key Information to Display**: Email and password input fields, submission buttons, links to toggle between login and registration.
@@ -20,6 +22,8 @@ The structure is centered around a few key views: a dashboard for listing tastin
   - **Security**: All authentication is handled by Supabase Auth over HTTPS. These pages are the entry point to protected routes.
 
 ### 2.2. Onboarding Screen
+
+**Status:** ✅ **Implemented**
 
 - **View Path**: `/onboarding`
 - **Main Purpose**: To educate first-time users on key matcha tasting concepts and guide them on how to create their first entry.
@@ -32,11 +36,13 @@ The structure is centered around a few key views: a dashboard for listing tastin
 
 ### 2.3. Dashboard (Tasting Notes List)
 
+**Status:** ✅ **Implemented**
+
 - **View Path**: `/dashboard`
 - **Main Purpose**: To display a list of the user's personal tasting notes and serve as the main hub for navigation and actions like filtering and comparison.
 - **Key Information to Display**:
   - A list of tasting cards, each showing: Matcha Blend Name, Brand, Region, Overall Rating (stars), and Creation Date.
-  - When no tasting notes, navigat to /onboarding
+  - When no tasting notes, navigate to /onboarding
 - **Key View Components**: `TastingCard`, `TastingCardSkeleton`, `FilterPanel`, `Button` (for "Add New" and "Compare"), `FloatingActionButton` (mobile), `Badge` (for active filter count).
 - **UX, Accessibility, and Security Considerations**:
   - **UX**: Skeleton screens provide loading feedback. Optimistic UI for deletions. A "Compare" mode is activated via a header icon, revealing checkboxes on cards.
@@ -108,7 +114,7 @@ The user journey is designed to be intuitive, guiding users from initial registr
     - A filter panel opens (bottom sheet on mobile, collapsible section on desktop).
     - The user applies filters (e.g., by brand, minimum rating).
     - The list on the dashboard updates to show only matching results, and a badge appears on the filter icon indicating the number of active filters.
-    - In case of empty no matching tastings, shows an empty state with "Sorry, you have no tasting like that" and a CTA to create their specified tasting
+    - In case of empty no matching tastings, shows an empty state with "No results found" and a CTA to create their specified tasting
 
 ## 4. Layout and Navigation Structure
 
