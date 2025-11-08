@@ -1,0 +1,12 @@
+---
+import { AuthForm } from "@/components/AuthForm";
+import Layout from "@/layouts/Layout.astro";
+
+export const prerender = false;
+---
+
+<Layout title="Login - SipStory">
+  <main class="flex min-h-screen items-center justify-center p-4">
+    <AuthForm mode="login" client:load />
+  </main>
+</Layout>

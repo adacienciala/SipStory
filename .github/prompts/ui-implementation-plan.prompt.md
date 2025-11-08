@@ -9,7 +9,7 @@ First, review the following information:
 
 2. View Description:
    <view_description>
-   {{view-description}} <- paste description of the view being implemented from ui-plan.md
+   {{view description given by user}}
    </view_description>
 
 3. User Stories:
@@ -148,4 +148,4 @@ Here's an example of what the output file should look like (content is to be rep
 3. [...]
 ```
 
-Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/ui/{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown.
+Begin analysis and planning now. Your final output should consist solely of the implementation plan in English in markdown format, which you will save in the .ai/ui/{view-name}-view-implementation-plan.md file and should not duplicate or repeat any work done in the implementation breakdown. Do not start implementation.

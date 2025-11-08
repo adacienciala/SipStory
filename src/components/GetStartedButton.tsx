@@ -1,19 +1,43 @@
-import { useState } from "react";
+import { supabaseClient } from "@/db/supabase.client";
+import { useEffect, useState } from "react";
 
 export default function GetStartedButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabaseClient.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleClick = async () => {
     setIsLoading(true);
 
     try {
-      // Example: API call or form submission
-      // await fetch("/api/waitlist", { method: "POST" });
-
-      // For now, just navigate to signup
-      window.location.href = "/signup";
+      if (isAuthenticated) {
+        // Navigate to dashboard (placeholder for now)
+        window.location.href = "/dashboard";
+      } else {
+        // Navigate to register page
+        window.location.href = "/register";
+      }
     } catch {
-      // Handle error appropriately in production
       setIsLoading(false);
       return;
     } finally {
@@ -27,7 +51,7 @@ export default function GetStartedButton() {
       disabled={isLoading}
       className="px-8 py-3 bg-emerald-800 text-white rounded-md hover:bg-emerald-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {isLoading ? "Loading..." : "Get Started"}
+      {isLoading ? "Loading..." : isAuthenticated ? "Go to Dashboard" : "Get Started"}
     </button>
   );
 }

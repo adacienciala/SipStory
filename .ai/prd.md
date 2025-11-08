@@ -92,13 +92,13 @@ The following features and functionalities are explicitly out of scope for the M
 
 - ID: US-004
 - Title: First-Time User Onboarding
-- Description: As a new user who has just logged in for the first time, I want to see a single onboarding screen that explains the app's purpose and key terms so I understand how to get started.
+- Description: As a user without any tasting notes on the dashboard, I want to see a single onboarding screen that explains the app's purpose and key terms so I understand how to get started.
 - Acceptance Criteria:
-  - Given I have just registered and logged in for the first time.
+  - Given I have just registered and logged in for the first time, no tasting notes.
   - Then I am presented with a mandatory, single-page onboarding view.
   - And this view explains concepts like 'umami' and 'foam quality'.
   - And it shows a brief guide on how to log a new entry.
-  - When I acknowledge the screen (e.g., click a "Get Started" button), I am taken to my empty dashboard.
+  - When I acknowledge the screen (e.g., click a "Get Started" button), I am taken to creating a new tasitng note screen.
 
 ### Tasting Notes Management (CRUD)
 
