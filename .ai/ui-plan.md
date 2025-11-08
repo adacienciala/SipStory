@@ -51,6 +51,8 @@ The structure is centered around a few key views: a dashboard for listing tastin
 
 ### 2.4. Tasting Detail View
 
+**Status:** ✅ **Implemented**
+
 - **View Path**: `/tastings/[id]`
 - **Main Purpose**: To display all recorded information for a single tasting note.
 - **Key Information to Display**: All fields from the tasting note, including brand, blend, region, all ratings (overall, umami, bitter, sweet, foam), koicha/milk notes, price, and purchase source.

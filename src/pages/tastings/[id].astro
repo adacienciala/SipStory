@@ -1,0 +1,132 @@
+---
+import { TastingDetailView } from "../../components/tasting-detail/TastingDetailView";
+import type { TastingDetailViewModel } from "../../components/tasting-detail/types";
+import Layout from "../../layouts/Layout.astro";
+import type { TastingNoteResponseDTO } from "../../types";
+
+export const prerender = false;
+
+// Get the tasting note ID from the URL parameter
+const { id } = Astro.params;
+
+// Check if user is authenticated
+const supabase = Astro.locals.supabase;
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Validate ID parameter
+if (!id) {
+  return new Response("Tasting note ID is required", { status: 400 });
+}
+
+/**
+ * Maps a TastingNoteResponseDTO to a TastingDetailViewModel
+ * Formats data for display purposes
+ */
+function mapToViewModel(dto: TastingNoteResponseDTO): TastingDetailViewModel {
+  // Format price
+  const pricePln = dto.price_pln !== null ? `${dto.price_pln} PLN` : null;
+
+  // Format date (e.g., "November 8, 2025")
+  const updatedAt = new Date(dto.updated_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  // Validate purchase source URL
+  let purchaseSource = {
+    text: dto.purchase_source || "",
+    isUrl: false,
+  };
+
+  if (dto.purchase_source) {
+    try {
+      new URL(dto.purchase_source);
+      purchaseSource.isUrl = true;
+    } catch {
+      // Not a valid URL, treat as plain text
+      purchaseSource.isUrl = false;
+    }
+  }
+
+  return {
+    id: dto.id,
+    blendName: dto.blend.name,
+    brandName: dto.blend.brand.name,
+    regionName: dto.blend.region.name,
+    overallRating: dto.overall_rating,
+    umami: dto.umami,
+    bitter: dto.bitter,
+    sweet: dto.sweet,
+    foam: dto.foam,
+    notesKoicha: dto.notes_koicha,
+    notesMilk: dto.notes_milk,
+    pricePln,
+    purchaseSource,
+    updatedAt,
+  };
+}
+
+// Fetch tasting note data
+let viewModel: TastingDetailViewModel | null = null;
+let error: string | null = null;
+
+try {
+  const response = await fetch(`${Astro.url.origin}/api/tasting-notes/${id}`, {
+    headers: {
+      Cookie: Astro.request.headers.get("Cookie") || "",
+    },
+  });
+
+  if (response.status === 404) {
+    error = "Tasting note not found";
+  } else if (!response.ok) {
+    error = "An unexpected error occurred while loading the tasting note";
+  } else {
+    const data: TastingNoteResponseDTO = await response.json();
+    viewModel = mapToViewModel(data);
+  }
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.error("Error fetching tasting note:", err);
+  error = "An unexpected error occurred while loading the tasting note";
+}
+---
+
+<Layout title={viewModel ? `${viewModel.brandName} - ${viewModel.blendName}` : "Tasting Note"}>
+  {
+    error ? (
+      <div class="flex min-h-screen items-center justify-center p-4">
+        <div class="max-w-md space-y-4 text-center">
+          <h1 class="text-2xl font-bold text-gray-900">{error}</h1>
+          <p class="text-gray-600">
+            {error === "Tasting note not found"
+              ? "The tasting note you're looking for doesn't exist or you don't have permission to view it."
+              : "Please try again later or contact support if the problem persists."}
+          </p>
+          <a
+            href="/dashboard"
+            class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90"
+          >
+            Back to Dashboard
+          </a>
+        </div>
+      </div>
+    ) : viewModel ? (
+      <TastingDetailView note={viewModel} client:load />
+    ) : (
+      <div class="flex min-h-screen items-center justify-center">
+        <div class="text-center">
+          <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-primary" />
+          <p class="mt-4 text-gray-600">Loading tasting note...</p>
+        </div>
+      </div>
+    )
+  }
+</Layout>
