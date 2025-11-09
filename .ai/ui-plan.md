@@ -77,14 +77,16 @@ The structure is centered around a few key views: a dashboard for listing tastin
 
 ### 2.6. Comparison View
 
-- **View Path**: `/compare?ids=[id1],[id2]`
+**Status:** ✅ **Implemented**
+
+- **View Path**: `/tastings/compare?ids=[id1],[id2]`
 - **Main Purpose**: To display two selected tasting notes side-by-side for direct comparison.
 - **Key Information to Display**: All fields for both selected tasting notes, arranged for easy comparison.
-- **Key View Components**: `ComparisonView`, `TastingCard` (or similar data display component).
+- **Key View Components**: `ComparisonView`, `ComparisonTable`, `ComparisonCard`, `ComparisonRow`, `StarRatingDisplay`, `DotRatingDisplay`.
 - **UX, Accessibility, and Security Considerations**:
-  - **UX**: On desktop, a two-column layout is used. On mobile, a stacked vertical layout with sticky headers for each tasting note ensures readability.
-  - **Accessibility**: Data is laid out in a logical order that is understandable by screen readers.
-  - **Security**: Protected route. The backend validates that both requested note IDs belong to the authenticated user.
+  - **UX**: On desktop, a two-column table layout is used. On mobile, a stacked vertical layout with cards for each tasting note ensures readability. Loading states and error messages provide clear feedback. "Back to Dashboard" button for easy navigation.
+  - **Accessibility**: Table structure with proper headers for desktop. Definition lists for mobile. Data is laid out in a logical order that is understandable by screen readers. ARIA labels for interactive elements.
+  - **Security**: Protected route. The backend validates that both requested note IDs belong to the authenticated user. Client-side UUID validation prevents malformed requests.
 
 ## 3. User Journey Map
 

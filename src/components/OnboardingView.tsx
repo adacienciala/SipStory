@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 export default function OnboardingView() {
   const handleGetStarted = () => {
     // Use window.location for navigation to ensure page load
-    window.location.href = "/tasting-notes/new";
+    window.location.href = "/tastings/new";
   };
 
   return (

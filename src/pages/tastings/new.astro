@@ -1,4 +1,5 @@
 ---
+import BackButton from "../../components/BackButton.astro";
 import { TastingForm } from "../../components/tasting-form/TastingForm";
 import Layout from "../../layouts/Layout.astro";
 import { listBlends } from "../../lib/services/blends.service";
@@ -49,23 +50,13 @@ try {
         <div class="max-w-md space-y-4 text-center">
           <h1 class="text-2xl font-bold text-gray-900">{error}</h1>
           <p class="text-gray-600">Please try again later or contact support if the problem persists.</p>
-          <a
-            href="/dashboard"
-            class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90"
-          >
-            Back to Dashboard
-          </a>
+          <BackButton variant="button" text="Back to Dashboard" />
         </div>
       </div>
     ) : (
       <div class="container mx-auto max-w-2xl px-4 py-8">
         <div class="mb-6">
-          <a href="/dashboard" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Dashboard
-          </a>
+          <BackButton text="Back to Dashboard" />
         </div>
         <h1 class="mb-8 text-3xl font-bold text-gray-900">New Tasting Note</h1>
         <TastingForm brands={brands} regions={regions} blends={blends} client:load />

@@ -1,0 +1,25 @@
+---
+import ComparisonView from "../../components/comparison/ComparisonView";
+import Layout from "../../layouts/Layout.astro";
+
+// Get user from middleware
+const user = Astro.locals.user;
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect("/login", 302);
+}
+
+// Extract ids from query parameters for validation
+const url = new URL(Astro.request.url);
+const idsParam = url.searchParams.get("ids");
+
+// Basic validation - detailed validation happens in the component
+if (!idsParam) {
+  return Astro.redirect("/dashboard", 302);
+}
+---
+
+<Layout title="Compare Tastings - SipStory">
+  <ComparisonView client:load />
+</Layout>

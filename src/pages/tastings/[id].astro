@@ -1,4 +1,5 @@
 ---
+import BackButton from "../../components/BackButton.astro";
 import { TastingDetailView } from "../../components/tasting-detail/TastingDetailView";
 import type { TastingDetailViewModel } from "../../components/tasting-detail/types";
 import Layout from "../../layouts/Layout.astro";
@@ -110,12 +111,7 @@ try {
               ? "The tasting note you're looking for doesn't exist or you don't have permission to view it."
               : "Please try again later or contact support if the problem persists."}
           </p>
-          <a
-            href="/dashboard"
-            class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90"
-          >
-            Back to Dashboard
-          </a>
+          <BackButton variant="button" text="Back to Dashboard" />
         </div>
       </div>
     ) : viewModel ? (

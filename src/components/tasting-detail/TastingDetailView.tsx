@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/BackButton";
 import { StarRatingDisplay } from "@/components/dashboard/StarRatingDisplay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +28,9 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-4 md:p-6">
+      {/* Back to Dashboard */}
+      <BackButton text="Back to Dashboard" />
+
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
