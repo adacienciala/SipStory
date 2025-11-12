@@ -43,7 +43,7 @@ export function TastingCard({ note, isCompareMode, isSelected, onSelect }: Tasti
   };
 
   const cardContent = (
-    <Card>
+    <Card className="block transition-shadow hover:shadow-md">
       <CardHeader>
         {isCompareMode && (
           <CardAction>
@@ -70,7 +70,7 @@ export function TastingCard({ note, isCompareMode, isSelected, onSelect }: Tasti
   if (isCompareMode) {
     return (
       <div
-        className="block cursor-pointer transition-shadow hover:shadow-md"
+        className="block cursor-pointer"
         onClick={handleCardClick}
         role="button"
         tabIndex={0}
@@ -88,11 +88,7 @@ export function TastingCard({ note, isCompareMode, isSelected, onSelect }: Tasti
   }
 
   return (
-    <a
-      href={`/tastings/${note.id}`}
-      className="block transition-shadow hover:shadow-md"
-      aria-label={`View ${note.blend.name} by ${note.blend.brand.name}`}
-    >
+    <a href={`/tastings/${note.id}`} aria-label={`View ${note.blend.name} by ${note.blend.brand.name}`}>
       {cardContent}
     </a>
   );

@@ -3,10 +3,13 @@ import { AuthForm } from "@/components/AuthForm";
 import Layout from "@/layouts/Layout.astro";
 
 export const prerender = false;
+
+// Get redirectTo from query params
+const redirectTo = Astro.url.searchParams.get("redirectTo") || undefined;
 ---
 
 <Layout title="Register - SipStory">
   <main class="flex min-h-screen items-center justify-center p-4">
-    <AuthForm mode="register" client:load />
+    <AuthForm mode="register" redirectTo={redirectTo} client:load />
   </main>
 </Layout>

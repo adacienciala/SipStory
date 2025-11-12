@@ -3,13 +3,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { supabaseClient } from "../db/supabase.client";
 
 /**
  * Props interface for the AuthForm component
  */
 interface AuthFormProps {
-  mode: "login" | "register";
+  mode: "login" | "register" | "password-recovery";
+  redirectTo?: string;
 }
 
 /**
@@ -21,18 +21,58 @@ interface AuthFormData {
 }
 
 /**
- * AuthForm component - Handles both login and registration
- * @param mode - Determines whether the form is for login or registration
+ * Interface for field errors
  */
-export function AuthForm({ mode }: AuthFormProps) {
+interface FieldErrors {
+  email?: string;
+  password?: string;
+}
+
+/**
+ * Validates email format
+ */
+const validateEmail = (email: string): string | null => {
+  if (!email) {
+    return "Email is required";
+  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return "Please enter a valid email address";
+  }
+  return null;
+};
+
+/**
+ * Validates password complexity
+ */
+const validatePassword = (password: string, isRegistration: boolean): string | null => {
+  if (!password) {
+    return "Password is required";
+  }
+  if (isRegistration && password.length < 8) {
+    return "Password must be at least 8 characters long";
+  }
+  return null;
+};
+
+/**
+ * AuthForm component - Handles login, registration, and password recovery
+ * @param mode - Determines the form type: "login", "register", or "password-recovery"
+ * @param redirectTo - Optional URL to redirect to after successful authentication
+ */
+export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   const [formData, setFormData] = useState<AuthFormData>({
     email: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const isLoginMode = mode === "login";
+  const isRegisterMode = mode === "register";
+  const isPasswordRecoveryMode = mode === "password-recovery";
 
   /**
    * Handles input field changes and clears any existing errors
@@ -40,80 +80,138 @@ export function AuthForm({ mode }: AuthFormProps) {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
+    // Clear errors when user starts typing
     if (error) {
       setError(null);
+    }
+    if (fieldErrors[name as keyof FieldErrors]) {
+      setFieldErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   /**
-   * Handles form submission for both login and registration
+   * Validates all form fields
+   */
+  const validateForm = (): boolean => {
+    const errors: FieldErrors = {};
+
+    // Validate email
+    const emailError = validateEmail(formData.email);
+    if (emailError) {
+      errors.email = emailError;
+    }
+
+    // Validate password (skip for password recovery)
+    if (!isPasswordRecoveryMode) {
+      const passwordError = validatePassword(formData.password, isRegisterMode);
+      if (passwordError) {
+        errors.password = passwordError;
+      }
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  /**
+   * Handles form submission for login, registration, and password recovery
    */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
-      let session = null;
+      let apiEndpoint = "";
+      let requestBody: Record<string, string> = {};
 
-      if (isLoginMode) {
+      if (isPasswordRecoveryMode) {
+        // Password recovery flow
+        apiEndpoint = "/api/auth/password-recovery";
+        requestBody = { email: formData.email };
+      } else if (isLoginMode) {
         // Login flow
-        const { data, error: loginError } = await supabaseClient.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (loginError) {
-          throw loginError;
-        }
-
-        session = data.session;
+        apiEndpoint = "/api/auth/login";
+        requestBody = { email: formData.email, password: formData.password };
       } else {
         // Registration flow
-        const { data, error: signUpError } = await supabaseClient.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (signUpError) {
-          throw signUpError;
-        }
-
-        session = data.session;
+        apiEndpoint = "/api/auth/register";
+        requestBody = { email: formData.email, password: formData.password };
       }
 
-      // Store session tokens in cookies for server-side access
-      if (session) {
-        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=3600; secure; samesite=lax`;
-        document.cookie = `sb-refresh-token=${session.refresh_token}; path=/; max-age=2592000; secure; samesite=lax`;
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "An error occurred");
       }
 
-      // Redirect to dashboard on success
-      window.location.href = "/";
+      // Handle success
+      if (isPasswordRecoveryMode) {
+        setSuccessMessage("Password reset link has been sent to your email. Please check your inbox.");
+        setFormData({ email: "", password: "" });
+      } else if (isRegisterMode) {
+        setSuccessMessage("Account created! Please check your email to confirm your account.");
+        setFormData({ email: "", password: "" });
+      } else {
+        // Login success - redirect
+        const destination = redirectTo || "/dashboard";
+        window.location.href = destination;
+      }
     } catch (err: unknown) {
       // Handle specific error cases
       const errorMessage = err instanceof Error ? err.message : "";
-      if (errorMessage.includes("Invalid login credentials")) {
+      if (errorMessage.includes("Invalid login credentials") || errorMessage.includes("Invalid email or password")) {
         setError("Invalid email or password.");
-      } else if (errorMessage.includes("already registered")) {
+      } else if (errorMessage.includes("already registered") || errorMessage.includes("already exists")) {
         setError("A user with this email already exists.");
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        setError(errorMessage || "An unexpected error occurred. Please try again.");
       }
+    } finally {
       setIsLoading(false);
     }
+  };
+
+  // Determine card content based on mode
+  const getCardTitle = () => {
+    if (isPasswordRecoveryMode) return "Reset Password";
+    if (isLoginMode) return "Login";
+    return "Create Account";
+  };
+
+  const getCardDescription = () => {
+    if (isPasswordRecoveryMode) return "Enter your email to receive a password reset link";
+    if (isLoginMode) return "Enter your credentials to access your account";
+    return "Enter your email and password to create a new account";
+  };
+
+  const getButtonText = () => {
+    if (isLoading) return "Loading...";
+    if (isPasswordRecoveryMode) return "Send Reset Link";
+    if (isLoginMode) return "Login";
+    return "Create Account";
   };
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>{isLoginMode ? "Login" : "Create Account"}</CardTitle>
-        <CardDescription>
-          {isLoginMode
-            ? "Enter your credentials to access your account"
-            : "Enter your email and password to create a new account"}
-        </CardDescription>
+        <CardTitle>{getCardTitle()}</CardTitle>
+        <CardDescription>{getCardDescription()}</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <CardContent className="space-y-4">
@@ -122,57 +220,90 @@ export function AuthForm({ mode }: AuthFormProps) {
             <Input
               id="email"
               name="email"
-              type="email"
+              type="text"
               placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
-              required
               disabled={isLoading}
-              aria-invalid={!!error}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
             />
+            {fieldErrors.email && (
+              <p id="email-error" className="text-sm text-destructive" role="alert">
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              minLength={6}
-              disabled={isLoading}
-              aria-invalid={!!error}
-            />
-          </div>
+          {!isPasswordRecoveryMode && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {isLoginMode && (
+                  <a href="/password-recovery" className="text-sm text-primary hover:underline">
+                    Forgot password?
+                  </a>
+                )}
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={isLoading}
+                aria-invalid={!!fieldErrors.password}
+                aria-describedby={fieldErrors.password ? "password-error" : undefined}
+              />
+              {fieldErrors.password && (
+                <p id="password-error" className="text-sm text-destructive" role="alert">
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
+          )}
           {error && (
             <p className="text-sm text-destructive" role="alert">
               {error}
             </p>
           )}
+          {successMessage && (
+            <p className="text-sm text-green-600" role="status">
+              {successMessage}
+            </p>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Loading..." : isLoginMode ? "Login" : "Create Account"}
+            {getButtonText()}
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            {isLoginMode ? (
-              <>
-                Don&apos;t have an account?{" "}
-                <a href="/register" className="text-primary hover:underline">
-                  Sign up
-                </a>
-              </>
-            ) : (
-              <>
-                Already have an account?{" "}
-                <a href="/login" className="text-primary hover:underline">
-                  Login
-                </a>
-              </>
-            )}
-          </p>
+          {!isPasswordRecoveryMode && (
+            <p className="text-sm text-muted-foreground text-center">
+              {isLoginMode ? (
+                <>
+                  Don&apos;t have an account?{" "}
+                  <a href="/register" className="text-primary hover:underline">
+                    Sign up
+                  </a>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <a href="/login" className="text-primary hover:underline">
+                    Login
+                  </a>
+                </>
+              )}
+            </p>
+          )}
+          {isPasswordRecoveryMode && (
+            <p className="text-sm text-muted-foreground text-center">
+              Remember your password?{" "}
+              <a href="/login" className="text-primary hover:underline">
+                Back to login
+              </a>
+            </p>
+          )}
         </CardFooter>
       </form>
     </Card>
