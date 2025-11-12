@@ -69,8 +69,8 @@ The following features and functionalities are explicitly out of scope for the M
 - Acceptance Criteria:
   - Given I am on the registration page, I see fields for email and password.
   - When I enter a valid email and a secure password and submit the form.
-  - Then my account is created, and I am automatically logged in.
-  - And I am redirected to the onboarding screen.
+  - Then my account is created and I receive a confirmation email.
+  - And I am shown a message prompting me to check my inbox to confirm my account.
 
 - ID: US-002
 - Title: Existing User Login
@@ -79,6 +79,7 @@ The following features and functionalities are explicitly out of scope for the M
   - Given I am on the login page, I see fields for email and password.
   - When I enter my correct credentials and submit the form.
   - Then I am authenticated and redirected to my main tasting notes dashboard.
+  - And if it is my first time logging in and have no notes, I will be redirected to the onboarding page from the dashboard.
 
 - ID: US-003
 - Title: Secure Access to Tasting Notes
@@ -92,13 +93,13 @@ The following features and functionalities are explicitly out of scope for the M
 
 - ID: US-004
 - Title: First-Time User Onboarding
-- Description: As a user without any tasting notes on the dashboard, I want to see a single onboarding screen that explains the app's purpose and key terms so I understand how to get started.
+- Description: As a user who has just logged in for the first time, I want to see a single onboarding screen that explains the app's purpose and key terms so I understand how to get started.
 - Acceptance Criteria:
-  - Given I have just registered and logged in for the first time, no tasting notes.
-  - Then I am presented with a mandatory, single-page onboarding view.
+  - Given I have just logged in for the first time and have no tasting notes.
+  - Then I am redirected from the dashboard to a mandatory, single-page onboarding view.
   - And this view explains concepts like 'umami' and 'foam quality'.
   - And it shows a brief guide on how to log a new entry.
-  - When I acknowledge the screen (e.g., click a "Get Started" button), I am taken to creating a new tasitng note screen.
+  - When I acknowledge the screen (e.g., click a "Get Started" button), I am taken to the screen for creating a new tasting note.
 
 ### Tasting Notes Management (CRUD)
 
