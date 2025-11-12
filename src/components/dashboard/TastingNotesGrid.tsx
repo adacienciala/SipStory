@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import type { TastingNoteResponseDTO } from "../../types";
 import { TastingCard } from "./TastingCard";
 import { TastingCardSkeleton } from "./TastingCardSkeleton";
@@ -23,7 +24,25 @@ export function TastingNotesGrid({
   selectedNoteIds,
   onSelectNote,
 }: TastingNotesGridProps) {
-  if (isLoading) {
+  const [showSkeleton, setShowSkeleton] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading) {
+      setShowSkeleton(false);
+      return;
+    }
+
+    // Only show skeleton if loading takes longer than 200ms
+    const timer = setTimeout(() => {
+      if (isLoading) {
+        setShowSkeleton(true);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  if (showSkeleton) {
     return (
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Loading tastings">
         {Array.from({ length: 6 }).map((_, index) => (
