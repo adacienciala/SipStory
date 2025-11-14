@@ -12,12 +12,34 @@ import { AutocompleteInput } from "./AutocompleteInput";
 import { DotRatingInput } from "./DotRatingInput";
 import { StarRatingInput } from "./StarRatingInput";
 import type { TastingFormProps } from "./types";
+import { useAutocompleteData } from "./useAutocompleteData";
 import { useTastingForm } from "./useTastingForm";
 
 export function TastingForm(props: TastingFormProps) {
-  const { brands, regions, blends } = props;
-  const { formData, errors, isSubmitting, apiError, isEditMode, handleInputChange, handleSubmit } =
-    useTastingForm(props);
+  const {
+    formData,
+    errors,
+    isSubmitting,
+    apiError,
+    isEditMode,
+    handleInputChange,
+    handleBrandChange,
+    handleRegionChange,
+    handleBlendChange,
+    handleSubmit,
+  } = useTastingForm(props);
+
+  // Fetch autocomplete data based on selections
+  const {
+    brands,
+    regions,
+    blends,
+    isLoading,
+    error: autocompleteError,
+  } = useAutocompleteData({
+    selectedBrandId: formData.brandId,
+    selectedRegionId: formData.regionId,
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -25,6 +47,13 @@ export function TastingForm(props: TastingFormProps) {
       {apiError && (
         <div className="rounded-md bg-red-50 p-4 border border-red-200">
           <p className="text-sm text-red-800">{apiError}</p>
+        </div>
+      )}
+
+      {/* Autocomplete Error Message */}
+      {autocompleteError && (
+        <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200">
+          <p className="text-sm text-yellow-800">Warning: {autocompleteError}. You can still enter values manually.</p>
         </div>
       )}
 
@@ -36,35 +65,53 @@ export function TastingForm(props: TastingFormProps) {
         <AutocompleteInput
           label="Brand"
           value={formData.brandName}
-          onChange={(value) => handleInputChange("brandName", value)}
+          onChange={handleBrandChange}
           suggestions={brands}
           placeholder="Select or enter brand name"
           required
           disabled={isEditMode}
           error={errors.brandName}
+          isLoading={isLoading && brands.length === 0}
         />
 
         {/* Blend Name */}
         <AutocompleteInput
           label="Blend"
           value={formData.blendName}
-          onChange={(value) => handleInputChange("blendName", value)}
+          onChange={(id, name) => {
+            // Find the selected blend to get its brand and region
+            const selectedBlend = blends.find((b) => b.id === id);
+            if (selectedBlend) {
+              handleBlendChange(
+                id,
+                name,
+                selectedBlend.brand.id,
+                selectedBlend.brand.name,
+                selectedBlend.region.id,
+                selectedBlend.region.name
+              );
+            } else {
+              handleBlendChange(id, name);
+            }
+          }}
           suggestions={blends}
           placeholder="Select or enter blend name"
           required
           disabled={isEditMode}
           error={errors.blendName}
+          isLoading={isLoading}
         />
 
         {/* Region */}
         <AutocompleteInput
           label="Region"
           value={formData.regionName}
-          onChange={(value) => handleInputChange("regionName", value)}
+          onChange={handleRegionChange}
           suggestions={regions}
           placeholder="Select or enter region (optional)"
           disabled={isEditMode}
           error={errors.regionName}
+          isLoading={isLoading && formData.brandId !== null}
         />
       </section>
 

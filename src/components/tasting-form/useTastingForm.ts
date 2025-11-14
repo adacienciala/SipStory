@@ -12,8 +12,11 @@ import type { TastingFormErrors, TastingFormProps, TastingNoteFormViewModel } fr
 function initializeFormData(initialData?: TastingNoteResponseDTO): TastingNoteFormViewModel {
   if (initialData) {
     return {
+      brandId: initialData.blend.brand.id,
       brandName: initialData.blend.brand.name,
+      blendId: initialData.blend.id,
       blendName: initialData.blend.name,
+      regionId: initialData.blend.region.id,
       regionName: initialData.blend.region.name,
       overallRating: initialData.overall_rating,
       umami: initialData.umami,
@@ -28,8 +31,11 @@ function initializeFormData(initialData?: TastingNoteResponseDTO): TastingNoteFo
   }
 
   return {
+    brandId: null,
     brandName: "",
+    blendId: null,
     blendName: "",
+    regionId: null,
     regionName: "",
     overallRating: 0,
     umami: null,
@@ -46,7 +52,7 @@ function initializeFormData(initialData?: TastingNoteResponseDTO): TastingNoteFo
 /**
  * Validates form data according to DTO constraints
  */
-function validateFormData(data: TastingNoteFormViewModel, isEditMode: boolean): TastingFormErrors {
+function validateFormData(data: TastingNoteFormViewModel): TastingFormErrors {
   const errors: TastingFormErrors = {};
 
   // Required fields
@@ -126,15 +132,102 @@ export function useTastingForm(props: TastingFormProps) {
       setFormData((prev) => ({ ...prev, [field]: value }));
       setIsDirty(true);
       // Clear field error on change
-      if (errors[field]) {
+      if (field in errors) {
         setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[field];
-          return newErrors;
+          return Object.fromEntries(Object.entries(prev).filter(([key]) => key !== field)) as TastingFormErrors;
         });
       }
     },
     [errors]
+  );
+
+  // Handle brand selection
+  const handleBrandChange = useCallback(
+    (id: string | null, name: string) => {
+      if (id === formData.brandId && name === formData.brandName) {
+        setFormData((prev) => ({ ...prev, brandId: "", brandName: "" }));
+        return;
+      }
+      setFormData((prev) => {
+        // If brand changed and current region/blend are no longer valid, clear them
+        const shouldClearRegion = prev.brandId !== id && id !== null;
+        const shouldClearBlend = prev.brandId !== id && id !== null;
+
+        return {
+          ...prev,
+          brandId: id,
+          brandName: name,
+          ...(shouldClearRegion && { regionId: null, regionName: "" }),
+          ...(shouldClearBlend && { blendId: null, blendName: "" }),
+        };
+      });
+      setIsDirty(true);
+      if (errors.brandName) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.brandName;
+          return newErrors;
+        });
+      }
+    },
+    [errors.brandName, formData.brandId, formData.brandName]
+  );
+
+  // Handle region selection
+  const handleRegionChange = useCallback(
+    (id: string | null, name: string) => {
+      if (id === formData.regionId && name === formData.regionName) {
+        setFormData((prev) => ({ ...prev, regionId: "", regionName: "" }));
+        return;
+      }
+      setFormData((prev) => {
+        // If region changed and current blend is no longer valid, clear it
+        const shouldClearBlend = prev.regionId !== id && id !== null;
+
+        return {
+          ...prev,
+          regionId: id,
+          regionName: name,
+          ...(shouldClearBlend && { blendId: null, blendName: "" }),
+        };
+      });
+      setIsDirty(true);
+      if (errors.regionName) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.regionName;
+          return newErrors;
+        });
+      }
+    },
+    [errors.regionName, formData.regionId, formData.regionName]
+  );
+
+  // Handle blend selection - auto-fill brand and region
+  const handleBlendChange = useCallback(
+    (id: string | null, name: string, brandId?: string, brandName?: string, regionId?: string, regionName?: string) => {
+      if (id === formData.blendId && name === formData.blendName) {
+        setFormData((prev) => ({ ...prev, blendId: "", blendName: "" }));
+        return;
+      }
+      setFormData((prev) => ({
+        ...prev,
+        blendId: id,
+        blendName: name,
+        // Auto-fill brand and region if provided
+        ...(brandId && brandName && { brandId, brandName }),
+        ...(regionId && regionName && { regionId, regionName }),
+      }));
+      setIsDirty(true);
+      if (errors.blendName) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.blendName;
+          return newErrors;
+        });
+      }
+    },
+    [errors.blendName, formData.blendId, formData.blendName]
   );
 
   // Handle form submission
@@ -144,7 +237,7 @@ export function useTastingForm(props: TastingFormProps) {
       setApiError(null);
 
       // Validate form data
-      const validationErrors = validateFormData(formData, isEditMode);
+      const validationErrors = validateFormData(formData);
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors);
         return;
@@ -200,29 +293,44 @@ export function useTastingForm(props: TastingFormProps) {
           window.location.href = `/tastings/${initialData.id}`;
         } else {
           // Step 1: Create or find blend
-          const blendResponse = await fetch("/api/blends", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: formData.blendName,
-              brand: {
-                name: formData.brandName,
-              },
-              region: {
-                name: formData.regionName || null,
-              },
-            }),
-          });
+          // If blend is selected from list (has ID), use it directly
+          let blendId = formData.blendId;
 
-          if (!blendResponse.ok) {
-            const errorData = await blendResponse.json();
-            setApiError(errorData.error || "Failed to create blend. Please try again.");
-            return;
+          if (!blendId) {
+            // Blend doesn't exist, need to create it
+            const blendResponse = await fetch("/api/blends", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                name: formData.blendName,
+                brand: formData.brandId
+                  ? {
+                      id: formData.brandId,
+                    }
+                  : {
+                      name: formData.brandName,
+                    },
+                region: formData.regionId
+                  ? {
+                      id: formData.regionId,
+                    }
+                  : {
+                      name: formData.regionName || null,
+                    },
+              }),
+            });
+
+            if (!blendResponse.ok) {
+              const errorData = await blendResponse.json();
+              setApiError(errorData.error || "Failed to create blend. Please try again.");
+              return;
+            }
+
+            const blend = await blendResponse.json();
+            blendId = blend.id;
           }
-
-          const blend = await blendResponse.json();
 
           // Step 2: Create tasting note
           const noteResponse = await fetch("/api/tasting-notes", {
@@ -231,7 +339,7 @@ export function useTastingForm(props: TastingFormProps) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              blend_id: blend.id,
+              blend_id: blendId,
               overall_rating: formData.overallRating,
               umami: formData.umami,
               bitter: formData.bitter,
@@ -268,13 +376,14 @@ export function useTastingForm(props: TastingFormProps) {
           window.location.href = "/dashboard";
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Form submission error:", err);
         setApiError("A network error occurred. Please check your connection and try again.");
       } finally {
         setIsSubmitting(false);
       }
     },
-    [formData, isEditMode, initialData, errors]
+    [formData, isEditMode, initialData]
   );
 
   // Warn user about unsaved changes
@@ -297,6 +406,9 @@ export function useTastingForm(props: TastingFormProps) {
     apiError,
     isEditMode,
     handleInputChange,
+    handleBrandChange,
+    handleRegionChange,
+    handleBlendChange,
     handleSubmit,
   };
 }

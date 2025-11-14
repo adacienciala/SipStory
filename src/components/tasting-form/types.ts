@@ -9,8 +9,11 @@ import type { TastingNoteResponseDTO } from "../../types";
  * Flattens the nested structure from the API for easier form handling
  */
 export interface TastingNoteFormViewModel {
+  brandId: string | null;
   brandName: string;
+  blendId: string | null;
   blendName: string;
+  regionId: string | null;
   regionName: string;
   overallRating: number;
   umami: number | null;
@@ -29,12 +32,14 @@ export interface TastingNoteFormViewModel {
 export interface TastingFormProps {
   /** Pre-populated data for edit mode (undefined = create mode) */
   initialData?: TastingNoteResponseDTO;
-  /** List of brand names for autocomplete */
-  brands: string[];
-  /** List of region names for autocomplete */
-  regions: string[];
-  /** List of blend names for autocomplete */
-  blends: string[];
+}
+
+/**
+ * Autocomplete option with ID and name
+ */
+export interface AutocompleteOption {
+  id: string;
+  name: string;
 }
 
 /**
@@ -44,9 +49,9 @@ export interface AutocompleteInputProps {
   /** Current value of the input */
   value: string;
   /** Callback when value changes */
-  onChange: (value: string) => void;
+  onChange: (id: string | null, name: string) => void;
   /** List of suggestions to display */
-  suggestions: string[];
+  suggestions: AutocompleteOption[];
   /** Placeholder text */
   placeholder: string;
   /** Label for accessibility */
@@ -57,6 +62,8 @@ export interface AutocompleteInputProps {
   disabled?: boolean;
   /** Error message to display */
   error?: string;
+  /** Whether component is loading data */
+  isLoading?: boolean;
 }
 
 /**

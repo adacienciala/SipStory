@@ -2,9 +2,6 @@
 import BackButton from "../../components/BackButton.astro";
 import { TastingForm } from "../../components/tasting-form/TastingForm";
 import Layout from "../../layouts/Layout.astro";
-import { listBlends } from "../../lib/services/blends.service";
-import { listBrands } from "../../lib/services/brands.service";
-import { listRegions } from "../../lib/services/regions.service";
 
 export const prerender = false;
 
@@ -17,50 +14,14 @@ const {
 if (!user) {
   return Astro.redirect("/login");
 }
-
-// Fetch brands, regions, and blends for autocomplete
-let brands: string[] = [];
-let regions: string[] = [];
-let blends: string[] = [];
-let error: string | null = null;
-
-try {
-  // Fetch all brands (no pagination needed for autocomplete)
-  const brandsResult = await listBrands(supabase, { page: 1, limit: 1000 });
-  brands = brandsResult.data.map((brand) => brand.name).sort();
-
-  // Fetch all regions
-  const regionsResult = await listRegions(supabase, { page: 1, limit: 1000 });
-  regions = regionsResult.data.map((region) => region.name).sort();
-
-  // Fetch all blends for the user (blend suggestions based on existing entries)
-  const blendsResult = await listBlends(supabase, { page: 1, limit: 1000 });
-  blends = blendsResult.data.map((blend) => blend.name).sort();
-} catch (err) {
-  // eslint-disable-next-line no-console
-  console.error("Error fetching autocomplete data:", err);
-  error = "Failed to load form data";
-}
 ---
 
 <Layout title="New Tasting Note">
-  {
-    error ? (
-      <div class="flex min-h-screen items-center justify-center p-4">
-        <div class="max-w-md space-y-4 text-center">
-          <h1 class="text-2xl font-bold text-gray-900">{error}</h1>
-          <p class="text-gray-600">Please try again later or contact support if the problem persists.</p>
-          <BackButton variant="button" text="Back to Dashboard" />
-        </div>
-      </div>
-    ) : (
-      <div class="container mx-auto max-w-2xl px-4 py-8">
-        <div class="mb-6">
-          <BackButton text="Back to Dashboard" />
-        </div>
-        <h1 class="mb-8 text-3xl font-bold text-gray-900">New Tasting Note</h1>
-        <TastingForm brands={brands} regions={regions} blends={blends} client:load />
-      </div>
-    )
-  }
+  <div class="container mx-auto max-w-2xl px-4 py-8">
+    <div class="mb-6">
+      <BackButton text="Back to Dashboard" />
+    </div>
+    <h1 class="mb-8 text-3xl font-bold text-gray-900">New Tasting Note</h1>
+    <TastingForm client:load />
+  </div>
 </Layout>

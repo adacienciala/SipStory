@@ -2,9 +2,6 @@
 import BackButton from "../../../components/BackButton.astro";
 import { TastingForm } from "../../../components/tasting-form/TastingForm";
 import Layout from "../../../layouts/Layout.astro";
-import { listBlends } from "../../../lib/services/blends.service";
-import { listBrands } from "../../../lib/services/brands.service";
-import { listRegions } from "../../../lib/services/regions.service";
 import { getTastingNoteById } from "../../../lib/services/tasting-notes.service";
 import type { TastingNoteResponseDTO } from "../../../types";
 
@@ -28,11 +25,8 @@ if (!id) {
   return new Response("Tasting note ID is required", { status: 400 });
 }
 
-// Fetch tasting note data and autocomplete data
+// Fetch tasting note data
 let initialData: TastingNoteResponseDTO | null = null;
-let brands: string[] = [];
-let regions: string[] = [];
-let blends: string[] = [];
 let error: string | null = null;
 
 try {
@@ -41,16 +35,6 @@ try {
 
   if (!initialData) {
     error = "Tasting note not found";
-  } else {
-    // Fetch autocomplete data
-    const brandsResult = await listBrands(supabase, { page: 1, limit: 1000 });
-    brands = brandsResult.data.map((brand) => brand.name).sort();
-
-    const regionsResult = await listRegions(supabase, { page: 1, limit: 1000 });
-    regions = regionsResult.data.map((region) => region.name).sort();
-
-    const blendsResult = await listBlends(supabase, { page: 1, limit: 1000 });
-    blends = blendsResult.data.map((blend) => blend.name).sort();
   }
 } catch (err) {
   // eslint-disable-next-line no-console
@@ -79,7 +63,7 @@ try {
           <BackButton destination={`/tastings/${id}`} text="Back to Tasting Note" />
         </div>
         <h1 class="mb-8 text-3xl font-bold text-gray-900">Edit Tasting Note</h1>
-        <TastingForm initialData={initialData} brands={brands} regions={regions} blends={blends} client:load />
+        <TastingForm initialData={initialData} client:load />
       </div>
     ) : (
       <div class="flex min-h-screen items-center justify-center">

@@ -4,7 +4,7 @@
  * Uses Shadcn/ui Command and Popover components
  */
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
@@ -22,6 +22,7 @@ export function AutocompleteInput({
   required = false,
   disabled = false,
   error,
+  isLoading = false,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -29,20 +30,24 @@ export function AutocompleteInput({
   // Filter suggestions based on search input
   const filteredSuggestions = useMemo(() => {
     if (!search) return suggestions;
-    return suggestions.filter((suggestion) => suggestion.toLowerCase().includes(search.toLowerCase()));
+    return suggestions.filter((suggestion) => suggestion.name.toLowerCase().includes(search.toLowerCase()));
   }, [suggestions, search]);
 
   // Handle selection from dropdown
-  const handleSelect = (selectedValue: string) => {
-    onChange(selectedValue);
-    setOpen(false);
-    setSearch("");
+  const handleSelect = (selectedId: string) => {
+    const selected = suggestions.find((s) => s.id === selectedId);
+    if (selected) {
+      onChange(selected.id, selected.name);
+      setOpen(false);
+      setSearch("");
+    }
   };
 
   // Handle manual input (for new entries)
   const handleSearchChange = (newSearch: string) => {
     setSearch(newSearch);
-    onChange(newSearch);
+    // For new entries (not in suggestions), pass null as ID
+    onChange(null, newSearch);
   };
 
   return (
@@ -59,7 +64,7 @@ export function AutocompleteInput({
             role="combobox"
             aria-expanded={open}
             aria-label={label}
-            disabled={disabled}
+            disabled={disabled || isLoading}
             className={cn(
               "w-full justify-between font-normal",
               !value && "text-muted-foreground",
@@ -67,7 +72,11 @@ export function AutocompleteInput({
             )}
           >
             <span className="truncate">{value || placeholder}</span>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {isLoading ? (
+              <Loader2 className="ml-2 h-4 w-4 shrink-0 animate-spin" />
+            ) : (
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0" align="start">
@@ -81,9 +90,9 @@ export function AutocompleteInput({
               <CommandEmpty>{search ? `Create "${search}"` : "No results found"}</CommandEmpty>
               <CommandGroup>
                 {filteredSuggestions.map((suggestion) => (
-                  <CommandItem key={suggestion} value={suggestion} onSelect={() => handleSelect(suggestion)}>
-                    <Check className={cn("mr-2 h-4 w-4", value === suggestion ? "opacity-100" : "opacity-0")} />
-                    {suggestion}
+                  <CommandItem key={suggestion.id} value={suggestion.id} onSelect={() => handleSelect(suggestion.id)}>
+                    <Check className={cn("mr-2 h-4 w-4", value === suggestion.name ? "opacity-100" : "opacity-0")} />
+                    {suggestion.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
