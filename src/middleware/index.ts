@@ -1,84 +1,62 @@
-import { createClient } from "@supabase/supabase-js";
 import { defineMiddleware } from "astro:middleware";
 
-import type { Database } from "../db/database.types.ts";
+import { createSupabaseServerInstance } from "../db/supabase.client.ts";
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_KEY;
+// Public paths - Auth pages and API endpoints that don't require authentication
+const PUBLIC_PATHS = [
+  // Server-Rendered Astro Pages
+  "/",
+  "/login",
+  "/register",
+  "/reset-password",
+  "/reset-password-confirm",
+  // Auth API endpoints
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/reset-password",
+  "/api/auth/reset-password-confirm",
+  "/api/auth/logout",
+];
 
-// Public routes that don't require authentication
-const PUBLIC_ROUTES = ["/login", "/register"];
+export const onRequest = defineMiddleware(async ({ locals, cookies, url, request, redirect }, next) => {
+  // Create Supabase client with proper cookie handling
+  const supabase = createSupabaseServerInstance({
+    cookies,
+    headers: request.headers,
+  });
 
-export const onRequest = defineMiddleware(async (context, next) => {
-  const pathname = new URL(context.request.url).pathname;
+  // Store supabase client in locals for use in API routes and pages
+  locals.supabase = supabase;
 
-  // Get the authorization header from the request (for API calls)
-  const authHeader = context.request.headers.get("Authorization");
+  // IMPORTANT: Always get user session first before any other operations
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Try to get auth from cookies (for browser sessions)
-  const accessToken = context.cookies.get("sb-access-token")?.value;
-  const refreshToken = context.cookies.get("sb-refresh-token")?.value;
-
-  let supabase;
-  let user = null;
-
-  if (authHeader) {
-    // API request with Authorization header
-    const token = authHeader.replace("Bearer ", "");
-    supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: authHeader,
-        },
-      },
-    });
-
-    const { data } = await supabase.auth.getUser(token);
-    user = data.user;
-  } else if (accessToken && refreshToken) {
-    // Browser session with cookies
-    supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
-
-    // Set the session from cookies
-    const { data } = await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-
-    user = data.user;
-
-    // Update cookies if tokens were refreshed
-    if (data.session) {
-      context.cookies.set("sb-access-token", data.session.access_token, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-      });
-      context.cookies.set("sb-refresh-token", data.session.refresh_token, {
-        path: "/",
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-      });
-    }
+  // Set user in locals if authenticated
+  if (user) {
+    locals.user = {
+      email: user.email,
+      id: user.id,
+    };
   } else {
-    // No authentication - create unauthenticated client
-    supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+    locals.user = null;
   }
-
-  // Set context locals
-  context.locals.supabase = supabase;
-  context.locals.user = user;
 
   // Handle redirects based on authentication state
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+  const isPublicPath = PUBLIC_PATHS.includes(url.pathname);
 
-  if (user && isPublicRoute) {
-    // Authenticated users accessing login/register should be redirected to dashboard
-    return context.redirect("/", 302);
+  // Redirect authenticated users away from auth pages to dashboard
+  if (user && (url.pathname === "/login" || url.pathname === "/register" || url.pathname === "/reset-password")) {
+    return redirect("/dashboard", 302);
   }
 
-  // Protected routes handled by individual pages
+  // Redirect unauthenticated users away from protected routes to login
+  if (!user && !isPublicPath) {
+    // Store the original URL to redirect back after login
+    const redirectTo = encodeURIComponent(url.pathname + url.search);
+    return redirect(`/login?redirectTo=${redirectTo}`, 302);
+  }
+
   return next();
 });

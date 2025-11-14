@@ -2,9 +2,15 @@ import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ cookies, locals }) => {
+/**
+ * POST /api/auth/logout
+ * Signs out the current user and clears session cookies
+ * Uses @supabase/ssr which handles cookie cleanup automatically
+ */
+export const POST: APIRoute = async ({ locals }) => {
   try {
     // Sign out from Supabase
+    // @supabase/ssr automatically clears auth cookies via setAll callback
     const { error } = await locals.supabase.auth.signOut();
 
     if (error) {
@@ -20,10 +26,6 @@ export const GET: APIRoute = async ({ cookies, locals }) => {
         }
       );
     }
-
-    // Clear auth cookies
-    cookies.delete("sb-access-token", { path: "/" });
-    cookies.delete("sb-refresh-token", { path: "/" });
 
     return new Response(
       JSON.stringify({

@@ -8,7 +8,7 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
  * Props interface for the AuthForm component
  */
 interface AuthFormProps {
-  mode: "login" | "register" | "password-recovery";
+  mode: "login" | "register" | "password-recovery" | "reset-password-confirm";
   redirectTo?: string;
 }
 
@@ -18,6 +18,7 @@ interface AuthFormProps {
 interface AuthFormData {
   email: string;
   password: string;
+  confirmPassword?: string;
 }
 
 /**
@@ -26,6 +27,7 @@ interface AuthFormData {
 interface FieldErrors {
   email?: string;
   password?: string;
+  confirmPassword?: string;
 }
 
 /**
@@ -64,6 +66,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   const [formData, setFormData] = useState<AuthFormData>({
     email: "",
     password: "",
+    confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +76,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   const isLoginMode = mode === "login";
   const isRegisterMode = mode === "register";
   const isPasswordRecoveryMode = mode === "password-recovery";
+  const isResetPasswordConfirmMode = mode === "reset-password-confirm";
 
   /**
    * Handles input field changes and clears any existing errors
@@ -95,17 +99,28 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   const validateForm = (): boolean => {
     const errors: FieldErrors = {};
 
-    // Validate email
-    const emailError = validateEmail(formData.email);
-    if (emailError) {
-      errors.email = emailError;
+    // Validate email (not needed for reset password confirm)
+    if (!isResetPasswordConfirmMode) {
+      const emailError = validateEmail(formData.email);
+      if (emailError) {
+        errors.email = emailError;
+      }
     }
 
     // Validate password (skip for password recovery)
     if (!isPasswordRecoveryMode) {
-      const passwordError = validatePassword(formData.password, isRegisterMode);
+      const passwordError = validatePassword(formData.password, isRegisterMode || isResetPasswordConfirmMode);
       if (passwordError) {
         errors.password = passwordError;
+      }
+    }
+
+    // Validate confirm password for reset password confirm mode
+    if (isResetPasswordConfirmMode) {
+      if (!formData.confirmPassword) {
+        errors.confirmPassword = "Please confirm your password";
+      } else if (formData.password !== formData.confirmPassword) {
+        errors.confirmPassword = "Passwords do not match";
       }
     }
 
@@ -134,8 +149,18 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
 
       if (isPasswordRecoveryMode) {
         // Password recovery flow
-        apiEndpoint = "/api/auth/password-recovery";
+        apiEndpoint = "/api/auth/reset-password";
         requestBody = { email: formData.email };
+      } else if (isResetPasswordConfirmMode) {
+        const queryParams = new URLSearchParams(window.location.search);
+        const token = queryParams.get("code");
+
+        if (!token) {
+          throw new Error("Reset token not found. Please request a new password reset link.");
+        }
+
+        apiEndpoint = "/api/auth/reset-password-confirm";
+        requestBody = { password: formData.password, token };
       } else if (isLoginMode) {
         // Login flow
         apiEndpoint = "/api/auth/login";
@@ -163,10 +188,17 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
       // Handle success
       if (isPasswordRecoveryMode) {
         setSuccessMessage("Password reset link has been sent to your email. Please check your inbox.");
-        setFormData({ email: "", password: "" });
+        setFormData({ email: "", password: "", confirmPassword: "" });
+      } else if (isResetPasswordConfirmMode) {
+        setSuccessMessage("Password updated successfully! Redirecting to login...");
+        setFormData({ email: "", password: "", confirmPassword: "" });
+        // Redirect to login after a short delay
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
       } else if (isRegisterMode) {
         setSuccessMessage("Account created! Please check your email to confirm your account.");
-        setFormData({ email: "", password: "" });
+        setFormData({ email: "", password: "", confirmPassword: "" });
       } else {
         // Login success - redirect
         const destination = redirectTo || "/dashboard";
@@ -190,12 +222,14 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   // Determine card content based on mode
   const getCardTitle = () => {
     if (isPasswordRecoveryMode) return "Reset Password";
+    if (isResetPasswordConfirmMode) return "Set New Password";
     if (isLoginMode) return "Login";
     return "Create Account";
   };
 
   const getCardDescription = () => {
     if (isPasswordRecoveryMode) return "Enter your email to receive a password reset link";
+    if (isResetPasswordConfirmMode) return "Enter your new password below";
     if (isLoginMode) return "Enter your credentials to access your account";
     return "Enter your email and password to create a new account";
   };
@@ -203,6 +237,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
   const getButtonText = () => {
     if (isLoading) return "Loading...";
     if (isPasswordRecoveryMode) return "Send Reset Link";
+    if (isResetPasswordConfirmMode) return "Update Password";
     if (isLoginMode) return "Login";
     return "Create Account";
   };
@@ -215,31 +250,33 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
       </CardHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="text"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={isLoading}
-              aria-invalid={!!fieldErrors.email}
-              aria-describedby={fieldErrors.email ? "email-error" : undefined}
-            />
-            {fieldErrors.email && (
-              <p id="email-error" className="text-sm text-destructive" role="alert">
-                {fieldErrors.email}
-              </p>
-            )}
-          </div>
+          {!isResetPasswordConfirmMode && (
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="text"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={isLoading}
+                aria-invalid={!!fieldErrors.email}
+                aria-describedby={fieldErrors.email ? "email-error" : undefined}
+              />
+              {fieldErrors.email && (
+                <p id="email-error" className="text-sm text-destructive" role="alert">
+                  {fieldErrors.email}
+                </p>
+              )}
+            </div>
+          )}
           {!isPasswordRecoveryMode && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{isResetPasswordConfirmMode ? "New Password" : "Password"}</Label>
                 {isLoginMode && (
-                  <a href="/password-recovery" className="text-sm text-primary hover:underline">
+                  <a href="/reset-password" className="text-sm text-primary hover:underline">
                     Forgot password?
                   </a>
                 )}
@@ -262,6 +299,27 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
               )}
             </div>
           )}
+          {isResetPasswordConfirmMode && (
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                disabled={isLoading}
+                aria-invalid={!!fieldErrors.confirmPassword}
+                aria-describedby={fieldErrors.confirmPassword ? "confirm-password-error" : undefined}
+              />
+              {fieldErrors.confirmPassword && (
+                <p id="confirm-password-error" className="text-sm text-destructive" role="alert">
+                  {fieldErrors.confirmPassword}
+                </p>
+              )}
+            </div>
+          )}
           {error && (
             <p className="text-sm text-destructive" role="alert">
               {error}
@@ -277,7 +335,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {getButtonText()}
           </Button>
-          {!isPasswordRecoveryMode && (
+          {!isPasswordRecoveryMode && !isResetPasswordConfirmMode && (
             <p className="text-sm text-muted-foreground text-center">
               {isLoginMode ? (
                 <>
@@ -296,7 +354,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
               )}
             </p>
           )}
-          {isPasswordRecoveryMode && (
+          {(isPasswordRecoveryMode || isResetPasswordConfirmMode) && (
             <p className="text-sm text-muted-foreground text-center">
               Remember your password?{" "}
               <a href="/login" className="text-primary hover:underline">

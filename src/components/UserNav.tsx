@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState } from "react";
 
 interface UserNavProps {
@@ -71,7 +72,16 @@ export function UserNav({ user }: UserNavProps) {
       <PopoverContent className="w-56" align="end">
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.email}</p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <p className="text-sm font-medium leading-none truncate cursor-default">{user.email}</p>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{user.email}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <p className="text-xs text-muted-foreground">Signed in</p>
           </div>
           <div className="border-t pt-4">

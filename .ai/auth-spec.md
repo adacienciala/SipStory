@@ -24,7 +24,7 @@ The frontend will use a combination of Astro pages for structure and server-side
     - If an authenticated user tries to access this page, they will be redirected to the `/dashboard`.
     - Handles POST requests for registration.
 
-- **`/password-recovery` (`src/pages/password-recovery.astro`)** - **New File**
+- **`/reset-password` (`src/pages/reset-password.astro`)** - **New File**
   - **Purpose:** A two-step flow for password recovery.
   - **Step 1 (Request Reset):** A form where the user enters their email to receive a password reset link.
   - **Step 2 (Set New Password):** A page (linked from the email) where the user can set a new password. This will be handled by a special Supabase URL.
@@ -110,7 +110,7 @@ Backend logic will be implemented using Astro API routes and middleware.
     2.  Deletes the session cookies using `Astro.cookies.delete()`.
     3.  Returns a `200 OK` response, which will trigger a client-side redirect to the home page (`/`).
 
-- **`password-recovery.ts` (`POST`)**
+- **`reset-password.ts` (`POST`)**
   - **Purpose:** Initiate the password reset flow.
   - **Input:** `{ email }`.
   - **Logic:**

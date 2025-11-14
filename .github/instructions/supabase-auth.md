@@ -99,9 +99,9 @@ import { defineMiddleware } from "astro:middleware";
 // Public paths - Auth API endpoints & Server-Rendered Astro Pages
 const PUBLIC_PATHS = [
   // Server-Rendered Astro Pages
-  "/auth/login",
-  "/auth/register",
-  "/auth/reset-password",
+  "/login",
+  "/register",
+  "/reset-password",
   // Auth API endpoints
   "/api/auth/login",
   "/api/auth/register",
@@ -131,7 +131,7 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
     };
   } else if (!PUBLIC_PATHS.includes(url.pathname)) {
     // Redirect to login for protected routes
-    return redirect("/auth/login");
+    return redirect("/login");
   }
 
   return next();
@@ -216,7 +216,7 @@ In protected Astro pages:
 const { user } = Astro.locals;
 
 if (!user) {
-  return Astro.redirect("/auth/login");
+  return Astro.redirect("/login");
 }
 ---
 

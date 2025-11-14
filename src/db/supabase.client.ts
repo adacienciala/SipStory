@@ -1,10 +1,47 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
+import type { AstroCookies } from "astro";
 
-import type { Database } from "../db/database.types.ts";
+import type { Database } from "./database.types.ts";
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_KEY;
+export const cookieOptions: CookieOptionsWithName = {
+  path: "/",
+  secure: true,
+  httpOnly: true,
+  sameSite: "lax",
+};
 
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
+/**
+ * Parses the Cookie header string into an array of cookie objects
+ * @param cookieHeader - The Cookie header string from the request
+ * @returns Array of cookie objects with name and value
+ */
+function parseCookieHeader(cookieHeader: string): { name: string; value: string }[] {
+  return cookieHeader.split(";").map((cookie) => {
+    const [name, ...rest] = cookie.trim().split("=");
+    return { name, value: rest.join("=") };
+  });
+}
 
-export type SupabaseClient = typeof supabaseClient;
+/**
+ * Creates a Supabase server client with proper cookie handling for SSR
+ * Uses @supabase/ssr with getAll/setAll pattern for cookie management
+ * @param context - Object containing headers and cookies from Astro context
+ * @returns Configured Supabase client instance
+ */
+export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
+  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+    cookieOptions,
+    cookies: {
+      getAll() {
+        return parseCookieHeader(context.headers.get("Cookie") ?? "");
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => context.cookies.set(name, value, options));
+      },
+    },
+  });
+
+  return supabase;
+};
+
+export type SupabaseClient = ReturnType<typeof createSupabaseServerInstance>;
