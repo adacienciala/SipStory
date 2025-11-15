@@ -25,3 +25,18 @@ pnpm-debug.log*
  
 # vscode settings folder
 .vscode/
+
+# local todo file
+TODO.md
+
+# test coverage
+coverage/
+.nyc_output/
+
+# test reports
+playwright-report/
+test-results/
+playwright/.cache/
+
+# vitest
+.vitest/

@@ -31,9 +31,12 @@ Matcha enthusiasts investing in premium products often lack a structured, dedica
 | Styling              | Tailwind CSS 4 (`tailwindcss@^4.1.13`)          | Utility-first responsive styling                      |
 | Component Primitives | Shadcn/ui + Radix (`@radix-ui/react-slot`)      | Accessible, composable UI foundations                 |
 | Backend & Auth       | Supabase                                        | PostgreSQL + Auth (email/password)                    |
+| Unit Testing         | Vitest + React Testing Library                  | Component & function testing with coverage (c8)       |
+| E2E Testing          | Playwright                                      | End-to-end user flow testing                          |
+| API Testing          | REST Client (VS Code) + Postman                 | Direct endpoint validation                            |
 | Tooling              | TypeScript 5, ESLint 9, Prettier + Astro plugin | Quality, consistency                                  |
 | Deployment           | DigitalOcean (Docker)                           | Containerized hosting target                          |
-| CI/CD                | GitHub Actions                                  | Automated build, lint, (future) tests                 |
+| CI/CD                | GitHub Actions                                  | Automated build, lint, tests                          |
 
 Runtime Node version: see `.nvmrc`.
 

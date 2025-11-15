@@ -13,6 +13,14 @@
 - It's an **open-source** solution that can be hosted locally or on a private server.
 - Features built-in **user authentication**.
 
+### Testing:
+
+- **Vitest** for unit and integration testing of React components, hooks, and utility functions.
+- **React Testing Library** for component testing with user-centric queries and interactions.
+- **Vitest Coverage (c8)** for code coverage reporting (target: 80% for critical logic).
+- **Playwright** for end-to-end testing of complete user flows (login, CRUD operations, comparison).
+- **REST Client** (VS Code Extension) and **Postman** for API endpoint testing and validation.
+
 ### CI/CD and Hosting:
 
 - **GitHub Actions** for creating CI/CD pipelines.

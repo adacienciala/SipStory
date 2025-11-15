@@ -24,7 +24,7 @@ apikey: {{supabaseAnonKey}}
 
 {
   "email": "test@test.com",
-  "password": "YOUR_TEST_USER_PASSWORD"
+  "password": "Test123!"
 }
 
 ### Logout - Sign out the current user
