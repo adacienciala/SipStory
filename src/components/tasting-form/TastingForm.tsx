@@ -72,6 +72,7 @@ export function TastingForm(props: TastingFormProps) {
           disabled={isEditMode}
           error={errors.brandName}
           isLoading={isLoading && brands.length === 0}
+          data-testid="brand-input"
         />
 
         {/* Blend Name */}
@@ -100,6 +101,7 @@ export function TastingForm(props: TastingFormProps) {
           disabled={isEditMode}
           error={errors.blendName}
           isLoading={isLoading}
+          data-testid="blend-input"
         />
 
         {/* Region */}
@@ -112,6 +114,7 @@ export function TastingForm(props: TastingFormProps) {
           disabled={isEditMode}
           error={errors.regionName}
           isLoading={isLoading && formData.brandId !== null}
+          data-testid="region-input"
         />
       </section>
 
@@ -126,6 +129,7 @@ export function TastingForm(props: TastingFormProps) {
           required
           disabled={isSubmitting}
           error={errors.overallRating}
+          data-testid="overall-rating-input"
         />
       </section>
 
@@ -141,6 +145,7 @@ export function TastingForm(props: TastingFormProps) {
             onChange={(value) => handleInputChange("umami", value)}
             disabled={isSubmitting}
             error={errors.umami}
+            data-testid="umami-rating-input"
           />
 
           <DotRatingInput
@@ -149,6 +154,7 @@ export function TastingForm(props: TastingFormProps) {
             onChange={(value) => handleInputChange("bitter", value)}
             disabled={isSubmitting}
             error={errors.bitter}
+            data-testid="bitter-rating-input"
           />
 
           <DotRatingInput
@@ -157,6 +163,7 @@ export function TastingForm(props: TastingFormProps) {
             onChange={(value) => handleInputChange("sweet", value)}
             disabled={isSubmitting}
             error={errors.sweet}
+            data-testid="sweet-rating-input"
           />
 
           <DotRatingInput
@@ -165,6 +172,7 @@ export function TastingForm(props: TastingFormProps) {
             onChange={(value) => handleInputChange("foam", value)}
             disabled={isSubmitting}
             error={errors.foam}
+            data-testid="foam-rating-input"
           />
         </div>
       </section>
@@ -187,6 +195,7 @@ export function TastingForm(props: TastingFormProps) {
             rows={4}
             maxLength={1000}
             className={errors.notesKoicha ? "border-red-500 focus-visible:ring-red-500" : ""}
+            data-testid="notes-koicha-input"
           />
           {errors.notesKoicha && <p className="text-sm text-red-500">{errors.notesKoicha}</p>}
           <p className="text-xs text-gray-500">{formData.notesKoicha?.length || 0}/1000 characters</p>
@@ -206,6 +215,7 @@ export function TastingForm(props: TastingFormProps) {
             rows={4}
             maxLength={1000}
             className={errors.notesMilk ? "border-red-500 focus-visible:ring-red-500" : ""}
+            data-testid="notes-milk-input"
           />
           {errors.notesMilk && <p className="text-sm text-red-500">{errors.notesMilk}</p>}
           <p className="text-xs text-gray-500">{formData.notesMilk?.length || 0}/1000 characters</p>
@@ -231,6 +241,7 @@ export function TastingForm(props: TastingFormProps) {
             min="0"
             step="0.01"
             className={errors.pricePln ? "border-red-500 focus-visible:ring-red-500" : ""}
+            data-testid="price-input"
           />
           {errors.pricePln && <p className="text-sm text-red-500">{errors.pricePln}</p>}
         </div>
@@ -249,6 +260,7 @@ export function TastingForm(props: TastingFormProps) {
             disabled={isSubmitting}
             maxLength={500}
             className={errors.purchaseSource ? "border-red-500 focus-visible:ring-red-500" : ""}
+            data-testid="purchase-source-input"
           />
           {errors.purchaseSource && <p className="text-sm text-red-500">{errors.purchaseSource}</p>}
         </div>
@@ -256,10 +268,16 @@ export function TastingForm(props: TastingFormProps) {
 
       {/* Form Actions */}
       <div className="flex items-center justify-end gap-4 border-t pt-6">
-        <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isSubmitting}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => window.history.back()}
+          disabled={isSubmitting}
+          data-testid="cancel-button"
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} data-testid="submit-button">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

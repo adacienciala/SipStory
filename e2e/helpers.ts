@@ -3,10 +3,14 @@ import type { Page } from "@playwright/test";
 /**
  * Helper function to login a user during E2E tests
  * @param page - Playwright page object
- * @param email - User email
- * @param password - User password
+ * @param email - User email (defaults to E2E_USERNAME_WITH_DATA from .env.test)
+ * @param password - User password (defaults to E2E_PASSWORD_WITH_DATA from .env.test)
  */
-export async function loginUser(page: Page, email = "test-agent@test.com", password = "Test123!") {
+export async function loginUser(
+  page: Page,
+  email = process.env.E2E_USERNAME_WITH_DATA || "with-data@e2e.com",
+  password = process.env.E2E_PASSWORD_WITH_DATA || "Test123!"
+) {
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password").fill(password);

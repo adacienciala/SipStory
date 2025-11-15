@@ -248,7 +248,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
         <CardTitle>{getCardTitle()}</CardTitle>
         <CardDescription>{getCardDescription()}</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} method="POST" action="" className="space-y-4" data-testid="auth-form">
         <CardContent className="space-y-4">
           {!isResetPasswordConfirmMode && (
             <div className="space-y-2">
@@ -263,6 +263,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
                 disabled={isLoading}
                 aria-invalid={!!fieldErrors.email}
                 aria-describedby={fieldErrors.email ? "email-error" : undefined}
+                data-testid="email-input"
               />
               {fieldErrors.email && (
                 <p id="email-error" className="text-sm text-destructive" role="alert">
@@ -276,7 +277,11 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{isResetPasswordConfirmMode ? "New Password" : "Password"}</Label>
                 {isLoginMode && (
-                  <a href="/reset-password" className="text-sm text-primary hover:underline">
+                  <a
+                    href="/reset-password"
+                    className="text-sm text-primary hover:underline"
+                    data-testid="forgot-password-link"
+                  >
                     Forgot password?
                   </a>
                 )}
@@ -291,6 +296,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
                 disabled={isLoading}
                 aria-invalid={!!fieldErrors.password}
                 aria-describedby={fieldErrors.password ? "password-error" : undefined}
+                data-testid="password-input"
               />
               {fieldErrors.password && (
                 <p id="password-error" className="text-sm text-destructive" role="alert">
@@ -312,6 +318,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
                 disabled={isLoading}
                 aria-invalid={!!fieldErrors.confirmPassword}
                 aria-describedby={fieldErrors.confirmPassword ? "confirm-password-error" : undefined}
+                data-testid="confirm-password-input"
               />
               {fieldErrors.confirmPassword && (
                 <p id="confirm-password-error" className="text-sm text-destructive" role="alert">
@@ -321,18 +328,18 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
             </div>
           )}
           {error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-sm text-destructive" role="alert" data-testid="auth-error-message">
               {error}
             </p>
           )}
           {successMessage && (
-            <p className="text-sm text-green-600" role="status">
+            <p className="text-sm text-green-600" role="status" data-testid="auth-success-message">
               {successMessage}
             </p>
           )}
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading} data-testid="submit-button">
             {getButtonText()}
           </Button>
           {!isPasswordRecoveryMode && !isResetPasswordConfirmMode && (
@@ -340,14 +347,14 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
               {isLoginMode ? (
                 <>
                   Don&apos;t have an account?{" "}
-                  <a href="/register" className="text-primary hover:underline">
+                  <a href="/register" className="text-primary hover:underline" data-testid="signup-link">
                     Sign up
                   </a>
                 </>
               ) : (
                 <>
                   Already have an account?{" "}
-                  <a href="/login" className="text-primary hover:underline">
+                  <a href="/login" className="text-primary hover:underline" data-testid="login-link">
                     Login
                   </a>
                 </>
@@ -357,7 +364,7 @@ export function AuthForm({ mode, redirectTo }: AuthFormProps) {
           {(isPasswordRecoveryMode || isResetPasswordConfirmMode) && (
             <p className="text-sm text-muted-foreground text-center">
               Remember your password?{" "}
-              <a href="/login" className="text-primary hover:underline">
+              <a href="/login" className="text-primary hover:underline" data-testid="back-to-login-link">
                 Back to login
               </a>
             </p>

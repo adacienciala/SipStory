@@ -8,7 +8,14 @@ import { cn } from "../../lib/utils";
 import { Label } from "../ui/label";
 import type { DotRatingInputProps } from "./types";
 
-export function DotRatingInput({ value, onChange, label, disabled = false, error }: DotRatingInputProps) {
+export function DotRatingInput({
+  value,
+  onChange,
+  label,
+  disabled = false,
+  error,
+  "data-testid": dataTestId,
+}: DotRatingInputProps) {
   const dots = [1, 2, 3, 4, 5];
 
   const handleClick = (dot: number) => {
@@ -23,7 +30,7 @@ export function DotRatingInput({ value, onChange, label, disabled = false, error
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium text-gray-700">{label}</Label>
-      <div className="flex items-center gap-1" role="radiogroup" aria-label={label}>
+      <div className="flex items-center gap-1" role="radiogroup" aria-label={label} data-testid={dataTestId}>
         {dots.map((dot) => (
           <button
             key={dot}
@@ -37,6 +44,7 @@ export function DotRatingInput({ value, onChange, label, disabled = false, error
               "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full",
               disabled && "cursor-not-allowed opacity-50"
             )}
+            data-testid={`${dataTestId}-dot-${dot}`}
           >
             <Circle
               className={cn(

@@ -64,7 +64,7 @@ export const mockRegion = {
 
 export const mockUser = {
   id: "user123",
-  email: "test@test.com",
+  email: "test@example.com",
   has_completed_onboarding: true,
   created_at: "2025-01-01T00:00:00Z",
 };

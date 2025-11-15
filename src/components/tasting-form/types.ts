@@ -64,6 +64,8 @@ export interface AutocompleteInputProps {
   error?: string;
   /** Whether component is loading data */
   isLoading?: boolean;
+  /** Test ID for E2E testing */
+  "data-testid"?: string;
 }
 
 /**
@@ -82,6 +84,8 @@ export interface StarRatingInputProps {
   disabled?: boolean;
   /** Error message to display */
   error?: string;
+  /** Test ID for E2E testing */
+  "data-testid"?: string;
 }
 
 /**
@@ -98,6 +102,8 @@ export interface DotRatingInputProps {
   disabled?: boolean;
   /** Error message to display */
   error?: string;
+  /** Test ID for E2E testing */
+  "data-testid"?: string;
 }
 
 /**

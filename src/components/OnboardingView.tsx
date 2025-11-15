@@ -125,7 +125,7 @@ export default function OnboardingView() {
 
         {/* Call to Action */}
         <div className="flex justify-center pt-4">
-          <Button size="lg" onClick={handleGetStarted} className="min-w-[200px]">
+          <Button size="lg" onClick={handleGetStarted} className="min-w-[200px]" data-testid="get-started-button">
             Get Started
           </Button>
         </div>

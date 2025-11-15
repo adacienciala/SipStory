@@ -425,7 +425,6 @@ describe("AutocompleteInput", () => {
     });
 
     it("should handle very long suggestion names", async () => {
-      const user = userEvent.setup();
       const mockOnChange = vi.fn();
       const longNameSuggestions = [
         {

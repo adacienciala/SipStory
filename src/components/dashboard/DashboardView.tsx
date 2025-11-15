@@ -60,7 +60,7 @@ export default function DashboardView({ initialData }: DashboardViewProps) {
 
               {/* Add New Button (Desktop) */}
               <Button asChild size="sm" className="hidden md:flex" disabled={state.isCompareMode}>
-                <a href="/tastings/new">
+                <a href="/tastings/new" data-testid="add-new-tasting-button">
                   <Plus className="mr-2 h-4 w-4" />
                   Add New
                 </a>
@@ -145,6 +145,7 @@ export default function DashboardView({ initialData }: DashboardViewProps) {
           href="/tastings/new"
           className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110 md:hidden"
           aria-label="Add new tasting"
+          data-testid="add-new-tasting-fab"
         >
           <Plus className="h-6 w-6" />
         </a>

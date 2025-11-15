@@ -15,6 +15,7 @@ export function StarRatingInput({
   required = false,
   disabled = false,
   error,
+  "data-testid": dataTestId,
 }: StarRatingInputProps) {
   const stars = [1, 2, 3, 4, 5];
 
@@ -24,7 +25,7 @@ export function StarRatingInput({
         {label}
         {required && <span className="ml-1 text-red-500">*</span>}
       </Label>
-      <div className="flex items-center gap-1" role="radiogroup" aria-label={label}>
+      <div className="flex items-center gap-1" role="radiogroup" aria-label={label} data-testid={dataTestId}>
         {stars.map((star) => (
           <button
             key={star}
@@ -38,6 +39,7 @@ export function StarRatingInput({
               "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded",
               disabled && "cursor-not-allowed opacity-50"
             )}
+            data-testid={`${dataTestId}-star-${star}`}
           >
             <Star
               className={cn(

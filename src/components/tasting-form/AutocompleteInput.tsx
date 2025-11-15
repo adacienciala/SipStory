@@ -23,6 +23,7 @@ export function AutocompleteInput({
   disabled = false,
   error,
   isLoading = false,
+  "data-testid": dataTestId,
 }: AutocompleteInputProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -70,6 +71,7 @@ export function AutocompleteInput({
               !value && "text-muted-foreground",
               error && "border-red-500 focus-visible:ring-red-500"
             )}
+            data-testid={dataTestId}
           >
             <span className="truncate">{value || placeholder}</span>
             {isLoading ? (
