@@ -21,7 +21,7 @@
 - **Playwright** for end-to-end testing of complete user flows (login, CRUD operations, comparison).
 - **REST Client** (VS Code Extension) and **Postman** for API endpoint testing and validation.
 
-### CI/CD and Hosting:
+### CI/CD and Deployments:
 
 - **GitHub Actions** for creating CI/CD pipelines.
-- **DigitalOcean** for hosting the application via a Docker image.
+- **Cloudflare Pages** for deployments and releases.

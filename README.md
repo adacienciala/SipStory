@@ -35,7 +35,7 @@ Matcha enthusiasts investing in premium products often lack a structured, dedica
 | E2E Testing          | Playwright                                      | End-to-end user flow testing                          |
 | API Testing          | REST Client (VS Code) + Postman                 | Direct endpoint validation                            |
 | Tooling              | TypeScript 5, ESLint 9, Prettier + Astro plugin | Quality, consistency                                  |
-| Deployment           | DigitalOcean (Docker)                           | Containerized hosting target                          |
+| Deployment           | Cloudflare Pages                                | Jamstack platform for frontend applications           |
 | CI/CD                | GitHub Actions                                  | Automated build, lint, tests                          |
 
 Runtime Node version: see `.nvmrc`.
@@ -105,14 +105,9 @@ Preview the production build:
 npm run preview
 ```
 
-### 8. Docker & Deployment
+### 8. Deployments & Releases
 
-A Dockerfile and GitHub Actions workflow will be added to build and push an image deployable to DigitalOcean.
-
-```bash
-docker build -t sipstory:latest .
-docker run -p 8080:8080 sipstory:latest
-```
+The project is configured for continuous deployment to **Cloudflare Pages**. Every push to the `main` branch triggers a new build and deployment via GitHub Actions.
 
 ### 9. Shadcn/ui Components
 
@@ -146,7 +141,7 @@ Global styles: `src/styles/global.css`. Use arbitrary values for one-offs and re
 - Autocomplete suggestions based on user’s own historical entries.
 - Responsive UI (mobile ~390px, desktop ~1440px).
 - CI/CD pipeline (build + lint + E2E tests) via GitHub Actions.
-- Deployment to publicly accessible URL (DigitalOcean target).
+- Deployment to publicly accessible URL (Cloudflare Pages target).
 
 ### Out of Scope (MVP)
 
@@ -223,8 +218,7 @@ Global styles: `src/styles/global.css`. Use arbitrary values for one-offs and re
 ### 🚧 Pending Items
 
 - ⏳ Production deployment to DigitalOcean
-- ⏳ E2E test suite stability improvements (test caching issues)
-- ⏳ Generate seed data for testing (`test-seed.sql`)
+- ⏳ E2E test suite stability improvements (test caching issues on local)
 - ⏳ Final deployment verification
 
 ### 📊 Success Metrics (Post-Launch)
