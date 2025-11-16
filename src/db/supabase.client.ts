@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import type { AstroCookies } from "astro";
+import { SUPABASE_KEY, SUPABASE_URL } from "astro:env/server";
 
 import type { Database } from "./database.types.ts";
 
@@ -29,7 +30,7 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
  * @returns Configured Supabase client instance
  */
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+  const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
     cookieOptions,
     cookies: {
       getAll() {

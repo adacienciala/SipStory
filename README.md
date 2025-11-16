@@ -70,13 +70,20 @@ npm install
 
 ### 4. Configure environment variables
 
-Create `src/env.d.ts` entries (already scaffolded) and a `.env` file:
+Create a `.env` file:
 
 ```bash
 cp .env.example .env
 ```
 
-Reference via `import.meta.env.PUBLIC_SUPABASE_URL` inside Astro/React components or server endpoints.
+Add your Supabase credentials:
+
+```env
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key
+```
+
+**Note:** This project uses Astro's `astro:env` module for type-safe environment variables. Variables are defined in `astro.config.mjs` and automatically validated.
 
 ### 5. Run the development server
 

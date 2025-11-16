@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
@@ -13,6 +13,20 @@ export default defineConfig({
   server: { port: 3000 },
   experimental: {
     chromeDevtoolsWorkspace: true,
+  },
+  env: {
+    schema: {
+      SUPABASE_URL: envField.string({
+        context: "server",
+        access: "secret",
+        optional: false,
+      }),
+      SUPABASE_KEY: envField.string({
+        context: "server",
+        access: "secret",
+        optional: false,
+      }),
+    },
   },
   vite: {
     plugins: [tailwindcss()],
