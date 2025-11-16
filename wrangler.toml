@@ -1,0 +1,10 @@
+name = "sipstory"
+compatibility_flags = [ "nodejs_compat", "disable_nodejs_process_v2" ]
+compatibility_date = "2025-10-14"
+pages_build_output_dir = "dist"
+
+[env.production]
+name = "sipstory"
+
+# Enable Node.js compatibility for process.env access
+# This is required for astro:env to work correctly
