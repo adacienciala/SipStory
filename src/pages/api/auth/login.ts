@@ -55,6 +55,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
         );
       }
 
+      if (error.message.includes("Email not confirmed")) {
+        return new Response(
+          JSON.stringify({
+            error: "Please confirm your email address before logging in. Check your inbox for the confirmation link.",
+          }),
+          {
+            status: 401,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
       return new Response(
         JSON.stringify({
           error: error.message,
