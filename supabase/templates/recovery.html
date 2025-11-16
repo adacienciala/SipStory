@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Your Password - SipStory</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+      }
+      .header {
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        padding: 40px 20px;
+        text-align: center;
+      }
+      .logo {
+        max-width: 120px;
+        height: auto;
+      }
+      .content {
+        padding: 40px 30px;
+        color: #333333;
+      }
+      .title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 20px 0;
+        color: #2e7d32;
+      }
+      .text {
+        font-size: 16px;
+        line-height: 1.6;
+        margin: 0 0 20px 0;
+        color: #555555;
+      }
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: transform 0.2s;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+      }
+      .warning-box {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffa000;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .warning-text {
+        font-size: 14px;
+        color: #856404;
+        margin: 0;
+      }
+      .alternative-link {
+        font-size: 14px;
+        color: #777777;
+        margin: 20px 0;
+        word-break: break-all;
+      }
+      .footer {
+        padding: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #999999;
+        background-color: #f9f9f9;
+        border-top: 1px solid #eeeeee;
+      }
+      .footer-text {
+        margin: 5px 0;
+      }
+      .matcha-icon {
+        font-size: 32px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="{{ .SiteURL }}/logo.png" alt="SipStory Logo" class="logo" />
+      </div>
+
+      <div class="content">
+        <div class="matcha-icon">🔐</div>
+        <h1 class="title">Reset Your Password</h1>
+
+        <p class="text">
+          We received a request to reset the password for your SipStory account. Click the button below to create a new
+          password:
+        </p>
+
+        <div class="button-container">
+          <a href="{{ .ConfirmationURL }}" class="button">Reset Password</a>
+        </div>
+
+        <div class="warning-box">
+          <p class="warning-text">
+            <strong>⚠️ Security Notice:</strong> This link will expire in 1 hour for your security. If you didn't
+            request a password reset, please ignore this email and your password will remain unchanged.
+          </p>
+        </div>
+
+        <p class="alternative-link">
+          If the button doesn't work, copy and paste this link into your browser:<br />
+          <a href="{{ .ConfirmationURL }}" style="color: #4caf50">{{ .ConfirmationURL }}</a>
+        </p>
+
+        <p class="text" style="font-size: 14px; color: #777777; margin-top: 30px">
+          If you're having trouble accessing your account or didn't request this reset, please contact our support team.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p class="footer-text">SipStory - Your Matcha Tasting Companion</p>
+        <p class="footer-text">{{ .SiteURL }}</p>
+        <p class="footer-text" style="margin-top: 15px">© 2025 SipStory. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
