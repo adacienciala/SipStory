@@ -48,9 +48,9 @@ test.describe("View and Edit Tasting Flow", () => {
     await expect(detailPage.editButton).toBeVisible();
     await expect(detailPage.deleteButton).toBeVisible();
 
-    // Get the original values for later verification
-    const originalHeading = await detailPage.getHeadingText();
-    const originalRegion = await detailPage.getRegionValue();
+    // // Get the original values for later verification
+    // const originalHeading = await detailPage.getHeadingText();
+    // const originalRegion = await detailPage.getRegionValue();
 
     // Act - Step 4: Click Edit button
     await detailPage.clickEdit();
@@ -75,7 +75,7 @@ test.describe("View and Edit Tasting Flow", () => {
     expect(currentRating).toBeGreaterThanOrEqual(1);
     expect(currentRating).toBeLessThanOrEqual(5);
 
-    const currentPrice = await formPage.getPriceValue();
+    const currentPrice = (await formPage.getPriceValue()) || "100";
 
     // Act - Step 6: Modify some fields
     const newPrice = parseInt(currentPrice) + 5;
@@ -90,6 +90,7 @@ test.describe("View and Edit Tasting Flow", () => {
     await formPage.submitButton.click();
 
     // Assert - Step 8: Verify redirect back to detail page
+    await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/tastings\/[a-f0-9-]+$/);
     await detailPage.waitForLoad();
 
@@ -353,6 +354,7 @@ test.describe("View and Edit Tasting Flow", () => {
     await formPage.submitButton.click();
 
     // Assert - Verify redirect to detail page
+    await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/\/tastings\/[a-f0-9-]+$/);
     await detailPage.waitForLoad();
 

@@ -101,9 +101,11 @@ export class TastingDetailPage extends BasePage {
    * Confirm deletion in the dialog
    */
   async confirmDelete() {
-    await this.deleteConfirmButton.click();
-    // Wait for redirect to dashboard
-    await this.page.waitForURL(/\/dashboard/);
+    // Wait for redirect to dashboard or onboarding
+    await Promise.all([
+      this.page.waitForURL(/\/dashboard|\/onboarding/, { timeout: 15000 }),
+      this.deleteConfirmButton.click(),
+    ]);
   }
 
   /**

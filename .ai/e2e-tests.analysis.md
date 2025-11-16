@@ -351,7 +351,7 @@ Each flow was evaluated against:
 
 ---
 
-#### Flow 2D: Delete Tasting Note (P0) ✅
+#### Flow 2D: Delete Tasting Note (P0) ✅ COMPLETED
 
 **PRD Reference:** US-009, TC-CRUD-07  
 **Why Test:**
@@ -378,14 +378,28 @@ Each flow was evaluated against:
 - Checks database cascade operations
 - Tests UI removal/rerender
 
-**Existing Coverage:** ❌ Not covered (previous implementation was incorrect and removed)
+**Existing Coverage:** ✅ **IMPLEMENTED** in `03-view-delete-tasting.spec.ts` using POM pattern
 
-**Recommendation:** Need to rewrite `03-view-delete-tasting.spec.ts` using POM pattern. Must include:
+**Implementation Details:**
 
-- Confirmation dialog interaction
-- Cancel scenario (dialog dismissed, entry preserved)
-- Successful deletion scenario
-- Dashboard state update verification
+- 6 comprehensive test scenarios covering:
+  - Successful deletion with verification of removed entry
+  - Cancel deletion without removing tasting note
+  - Delete confirmation dialog content verification
+  - Complete step-by-step delete scenario
+  - Multiple delete dialog open/close cycles
+  - Detail page state maintenance after cancel
+- Uses LoginPage, DashboardPage, and TastingDetailPage POMs
+- All components have proper data-testid attributes:
+  - TastingDetailView: `data-testid="delete-button"`
+  - DeleteConfirmDialog: `data-testid="delete-confirm-dialog"`, `data-testid="delete-confirm-button"`, `data-testid="delete-cancel-button"`
+  - Error handling: `data-testid="delete-error-message"`
+- TastingDetailPage POM provides full delete flow support:
+  - `clickDelete()` - Opens confirmation dialog
+  - `confirmDelete()` - Confirms and completes deletion
+  - `cancelDelete()` - Cancels deletion
+  - `isDeleteDialogVisible()` - Checks dialog state
+  - `isDeleteErrorVisible()` - Checks error state
 
 ---
 
