@@ -7,9 +7,12 @@ import { useTastingForm } from "./useTastingForm";
 // Mock global fetch
 global.fetch = vi.fn();
 
-// Mock window.location
+// Mock window.location with replace method
 delete (window as any).location;
-window.location = { href: "" } as any;
+window.location = {
+  href: "",
+  replace: vi.fn(),
+} as any;
 
 /**
  * Unit tests for useTastingForm hook
@@ -47,6 +50,7 @@ describe("useTastingForm", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     window.location.href = "";
+    (window.location.replace as any).mockClear();
     (global.fetch as any).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({}),
@@ -447,6 +451,7 @@ describe("useTastingForm", () => {
 
       await act(async () => {
         result.current.handleBrandChange("brand-1", "Ippodo");
+        result.current.handleRegionChange("region-1", "Uji");
         result.current.handleBlendChange(null, "New Blend");
         result.current.handleInputChange("overallRating", 4);
       });
@@ -489,7 +494,7 @@ describe("useTastingForm", () => {
       const { result } = renderHook(() => useTastingForm({ initialData: undefined }));
 
       await act(async () => {
-        result.current.handleBlendChange("existing-blend-id", "Existing Blend", "brand-1", "Ippodo");
+        result.current.handleBlendChange("existing-blend-id", "Existing Blend", "brand-1", "Ippodo", "region-1", "Uji");
         result.current.handleInputChange("overallRating", 4);
       });
 
@@ -530,6 +535,7 @@ describe("useTastingForm", () => {
 
       await act(async () => {
         result.current.handleBrandChange("brand-1", "Ippodo");
+        result.current.handleRegionChange("region-1", "Uji");
         result.current.handleBlendChange(null, "New Blend");
         result.current.handleInputChange("overallRating", 4);
       });
@@ -574,6 +580,7 @@ describe("useTastingForm", () => {
 
       await act(async () => {
         result.current.handleBrandChange("brand-1", "Ippodo");
+        result.current.handleRegionChange("region-1", "Uji");
         result.current.handleBlendChange(null, "New Blend");
         result.current.handleInputChange("overallRating", 4);
       });
@@ -597,6 +604,7 @@ describe("useTastingForm", () => {
 
       await act(async () => {
         result.current.handleBrandChange("brand-1", "Ippodo");
+        result.current.handleRegionChange("region-1", "Uji");
         result.current.handleBlendChange(null, "New Blend");
         result.current.handleInputChange("overallRating", 4);
       });
@@ -648,7 +656,7 @@ describe("useTastingForm", () => {
           method: "PATCH",
         })
       );
-      expect(window.location.href).toBe("/tastings/note-123");
+      expect(window.location.replace).toHaveBeenCalledWith("/tastings/note-123");
     });
 
     it("should handle 404 error in edit mode", async () => {
@@ -730,39 +738,49 @@ describe("useTastingForm", () => {
     });
 
     it("should set isSubmitting during API call", async () => {
-      let resolveFetch: any;
-      (global.fetch as any).mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolveFetch = resolve;
-        });
+      let resolveOuterFetch: any;
+      const delayedFetch = new Promise((resolve) => {
+        resolveOuterFetch = resolve;
       });
+
+      (global.fetch as any).mockImplementation(() => delayedFetch);
 
       const { result } = renderHook(() => useTastingForm({ initialData: undefined }));
 
       await act(async () => {
         result.current.handleBrandChange("brand-1", "Ippodo");
-        result.current.handleBlendChange("blend-1", "Premium");
+        result.current.handleBlendChange("blend-1", "Premium", "brand-1", "Ippodo", "region-1", "Uji");
         result.current.handleInputChange("overallRating", 4);
       });
 
+      // Start submission (don't await yet)
+      let submitPromise: Promise<void> | undefined;
       act(() => {
         const mockEvent = { preventDefault: vi.fn() } as any;
-        result.current.handleSubmit(mockEvent);
+        submitPromise = result.current.handleSubmit(mockEvent);
       });
 
-      // Should be submitting immediately
-      expect(result.current.isSubmitting).toBe(true);
+      // Check that isSubmitting is true during the API call
+      await waitFor(
+        () => {
+          expect(result.current.isSubmitting).toBe(true);
+        },
+        { timeout: 100 }
+      );
 
+      // Resolve the fetch and wait for completion
       await act(async () => {
-        resolveFetch({
+        resolveOuterFetch({
           ok: true,
           json: () => Promise.resolve({ id: "new-note-id" }),
         });
+        if (submitPromise) {
+          await submitPromise;
+        }
       });
 
-      await waitFor(() => {
-        expect(result.current.isSubmitting).toBe(false);
-      });
+      // After completion, isSubmitting should be false
+      expect(result.current.isSubmitting).toBe(false);
     });
   });
 });
