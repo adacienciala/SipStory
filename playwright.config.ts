@@ -31,8 +31,13 @@ export default defineConfig({
   /* Configure projects for major browsers - Chromium only as per guidelines */
   projects: [
     {
+      name: "cleanup db",
+      testMatch: /global\.teardown\.ts/,
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      teardown: "cleanup db",
     },
   ],
 
