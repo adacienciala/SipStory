@@ -34,13 +34,19 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
       {/* Header Section */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
+          <h1 className="text-2xl font-bold text-gray-900 md:text-3xl" data-testid="detail-page-heading">
             {note.brandName} | {note.blendName}
           </h1>
           <p className="text-sm text-gray-500">Last updated: {note.updatedAt}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="default" onClick={handleEdit} aria-label="Edit tasting note">
+          <Button
+            variant="outline"
+            size="default"
+            onClick={handleEdit}
+            aria-label="Edit tasting note"
+            data-testid="edit-button"
+          >
             <Pencil className="h-4 w-4" />
             <span className="hidden sm:inline">Edit</span>
           </Button>
@@ -49,6 +55,7 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
             size="default"
             onClick={() => setDeleteDialogOpen(true)}
             aria-label="Delete tasting note"
+            data-testid="delete-button"
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">Delete</span>
@@ -63,7 +70,7 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Overall Rating */}
-          <div className="flex items-center justify-between border-b pb-4">
+          <div className="flex items-center justify-between border-b pb-4" data-testid="detail-overall-rating">
             <span className="text-sm font-medium text-gray-700">Overall Rating</span>
             <StarRatingDisplay rating={note.overallRating} />
           </div>
@@ -71,10 +78,10 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
           {/* Structured Ratings */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-gray-900">Tasting Characteristics</h3>
-            <DotRatingDisplay label="Umami" value={note.umami} />
-            <DotRatingDisplay label="Bitter" value={note.bitter} />
-            <DotRatingDisplay label="Sweet" value={note.sweet} />
-            <DotRatingDisplay label="Foam Quality" value={note.foam} />
+            <DotRatingDisplay label="Umami" value={note.umami} data-testid="detail-umami-rating" />
+            <DotRatingDisplay label="Bitter" value={note.bitter} data-testid="detail-bitter-rating" />
+            <DotRatingDisplay label="Sweet" value={note.sweet} data-testid="detail-sweet-rating" />
+            <DotRatingDisplay label="Foam Quality" value={note.foam} data-testid="detail-foam-rating" />
           </div>
 
           {/* General Info */}
@@ -83,12 +90,16 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
 
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Region</span>
-              <span className="text-sm text-gray-900">{note.regionName}</span>
+              <span className="text-sm text-gray-900" data-testid="detail-region">
+                {note.regionName}
+              </span>
             </div>
 
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-gray-700">Price (per 100g)</span>
-              <span className="text-sm text-gray-900">{note.pricePln || "—"}</span>
+              <span className="text-sm text-gray-900" data-testid="detail-price">
+                {note.pricePln || "—"}
+              </span>
             </div>
 
             <div className="flex items-center justify-between">
@@ -120,7 +131,9 @@ export function TastingDetailView({ note }: TastingDetailViewProps) {
             {note.notesKoicha && (
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-gray-900">Notes as Koicha</h3>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap">{note.notesKoicha}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap" data-testid="detail-notes-koicha">
+                  {note.notesKoicha}
+                </p>
               </div>
             )}
 

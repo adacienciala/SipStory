@@ -153,6 +153,8 @@ export class TastingFormPage extends BasePage {
     }
     const dotButton = this.getByTestId(`umami-rating-input-dot-${rating}`);
     await dotButton.click();
+    // Wait for the state to update
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -165,6 +167,8 @@ export class TastingFormPage extends BasePage {
     }
     const dotButton = this.getByTestId(`bitter-rating-input-dot-${rating}`);
     await dotButton.click();
+    // Wait for the state to update
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -177,6 +181,8 @@ export class TastingFormPage extends BasePage {
     }
     const dotButton = this.getByTestId(`sweet-rating-input-dot-${rating}`);
     await dotButton.click();
+    // Wait for the state to update
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -189,6 +195,8 @@ export class TastingFormPage extends BasePage {
     }
     const dotButton = this.getByTestId(`foam-rating-input-dot-${rating}`);
     await dotButton.click();
+    // Wait for the state to update
+    await this.page.waitForTimeout(300);
   }
 
   /**
@@ -323,5 +331,76 @@ export class TastingFormPage extends BasePage {
     await this.fillBlend(blend);
     await this.fillRegion(region);
     await this.setOverallRating(rating);
+  }
+
+  /**
+   * Get the current overall rating value
+   */
+  async getOverallRating(): Promise<number | null> {
+    // Check which star button has aria-checked="true"
+    for (let i = 1; i <= 5; i++) {
+      const starButton = this.getByTestId(`overall-rating-input-star-${i}`);
+      const isChecked = await starButton.getAttribute("aria-checked");
+      if (isChecked === "true") {
+        return i;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get the current value of a dot rating (umami, bitter, sweet, foam)
+   */
+  async getDotRating(type: "umami" | "bitter" | "sweet" | "foam"): Promise<number | null> {
+    // Wait for rating container to be visible
+    const ratingContainer = this.getByTestId(`${type}-rating-input`);
+    await ratingContainer.waitFor({ state: "visible", timeout: 5000 });
+
+    // Check which dot button has aria-checked="true"
+    // Check from highest to lowest
+    for (let i = 5; i >= 1; i--) {
+      const dotButton = this.getByTestId(`${type}-rating-input-dot-${i}`);
+      const isChecked = await dotButton.getAttribute("aria-checked");
+      if (isChecked === "true") {
+        return i;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get the current price value
+   */
+  async getPriceValue(): Promise<string> {
+    return (await this.priceInput.inputValue()) || "";
+  }
+
+  /**
+   * Get the current purchase source value
+   */
+  async getPurchaseSourceValue(): Promise<string> {
+    return (await this.purchaseSourceInput.inputValue()) || "";
+  }
+
+  /**
+   * Get the current notes as koicha value
+   */
+  async getNotesKoichaValue(): Promise<string> {
+    return (await this.notesKoichaInput.inputValue()) || "";
+  }
+
+  /**
+   * Get the current notes with milk value
+   */
+  async getNotesMilkValue(): Promise<string> {
+    return (await this.notesMilkInput.inputValue()) || "";
+  }
+
+  /**
+   * Wait for the form to be ready (page loaded, all inputs visible)
+   */
+  async waitForFormReady(): Promise<void> {
+    await this.pageHeading.waitFor({ state: "visible" });
+    await this.submitButton.waitFor({ state: "visible" });
   }
 }

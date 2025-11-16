@@ -291,9 +291,10 @@ export function useTastingForm(props: TastingFormProps) {
             }
           }
 
-          // Success - redirect to detail page
+          // Success - redirect to detail page with forced reload
           setIsDirty(false);
-          window.location.href = `/tastings/${initialData.id}`;
+          // Use replace() to force a full page reload and prevent caching issues
+          window.location.replace(`/tastings/${initialData.id}`);
         } else {
           // Step 1: Create or find blend
           // If blend is selected from list (has ID), use it directly

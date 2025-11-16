@@ -7,4 +7,5 @@ export { BasePage } from "./BasePage";
 export { DashboardPage } from "./DashboardPage";
 export { LoginPage } from "./LoginPage";
 export { OnboardingPage } from "./OnboardingPage";
+export { TastingDetailPage } from "./TastingDetailPage";
 export { TastingFormPage, type TastingFormData } from "./TastingFormPage";

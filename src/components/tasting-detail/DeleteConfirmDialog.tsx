@@ -55,7 +55,7 @@ export function DeleteConfirmDialog({ isOpen, onClose, noteId }: DeleteConfirmDi
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCancel}>
-      <DialogContent>
+      <DialogContent data-testid="delete-confirm-dialog">
         <DialogHeader>
           <DialogTitle>Delete Tasting Note</DialogTitle>
           <DialogDescription>
@@ -64,16 +64,25 @@ export function DeleteConfirmDialog({ isOpen, onClose, noteId }: DeleteConfirmDi
         </DialogHeader>
 
         {error && (
-          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive" role="alert">
+          <div
+            className="rounded-md bg-destructive/10 p-3 text-sm text-destructive"
+            role="alert"
+            data-testid="delete-error-message"
+          >
             {error}
           </div>
         )}
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isDeleting}>
+          <Button variant="outline" onClick={handleCancel} disabled={isDeleting} data-testid="delete-cancel-button">
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleConfirm} disabled={isDeleting}>
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isDeleting}
+            data-testid="delete-confirm-button"
+          >
             {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </DialogFooter>

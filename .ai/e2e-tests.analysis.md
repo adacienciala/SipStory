@@ -267,7 +267,7 @@ Each flow was evaluated against:
 
 ---
 
-#### Flow 2B: View Tasting Note (P1) 🔴
+#### Flow 2B: View Tasting Note (P1) ✅ COMPLETED
 
 **PRD Reference:** US-007, TC-CRUD-05  
 **Why Test:**
@@ -291,13 +291,18 @@ Each flow was evaluated against:
 - Validates data fetching by ID
 - Checks UI rendering of all field types
 
-**Existing Coverage:** ❌ Not covered explicitly (included in edit/delete tests)
+**Existing Coverage:** ✅ Covered in `02-view-edit-tasting.spec.ts`
 
-**Recommendation:** Will be covered as part of `02-view-edit-tasting.spec.ts` and `03-view-delete-tasting.spec.ts`
+**Implementation Details:**
+
+- View functionality is tested as part of the edit flow
+- TastingDetailPage POM provides comprehensive detail view interaction
+- All tests navigate through detail view before editing
+- Data display and navigation verified in multiple scenarios
 
 ---
 
-#### Flow 2C: Edit Tasting Note (P0) 🔴
+#### Flow 2C: Edit Tasting Note (P0) ✅ COMPLETED
 
 **PRD Reference:** US-008, TC-CRUD-06  
 **Why Test:**
@@ -325,9 +330,24 @@ Each flow was evaluated against:
 - Checks optimistic UI updates
 - Tests API PATCH/PUT endpoint
 
-**Existing Coverage:** ✅ Covered in `02-view-edit-tasting.spec.ts`
+**Existing Coverage:** ✅ **IMPLEMENTED** in `02-view-edit-tasting.spec.ts` using POM pattern
 
-**Recommendation:** Current coverage adequate
+**Implementation Details:**
+
+- 7 comprehensive test scenarios covering:
+  - Successful edit with data verification
+  - Pre-populated data display
+  - Cancel edit without saving
+  - Validation maintenance in edit mode
+  - Update only modified fields
+  - Edit with all optional fields
+  - Complete step-by-step scenario
+- Uses LoginPage, DashboardPage, TastingDetailPage, and TastingFormPage POMs
+- All components have proper data-testid attributes:
+  - TastingDetailView: Edit/Delete buttons, heading, data fields
+  - DeleteConfirmDialog: Dialog, confirm/cancel buttons
+  - TastingFormPage: Enhanced with getter methods for pre-populated data verification
+- TastingDetailPage POM created with full navigation and action support
 
 ---
 
