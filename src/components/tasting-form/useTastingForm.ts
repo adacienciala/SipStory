@@ -68,14 +68,17 @@ function validateFormData(data: TastingNoteFormViewModel): TastingFormErrors {
     errors.blendName = "Blend name must not exceed 255 characters";
   }
 
+  if (!data.regionName.trim()) {
+    errors.regionName = "Region is required";
+  } else if (data.regionName.length > 255) {
+    errors.regionName = "Region name must not exceed 255 characters";
+  }
+
   if (data.overallRating < 1 || data.overallRating > 5) {
     errors.overallRating = "Overall rating is required (1-5 stars)";
   }
 
   // Optional fields validation
-  if (data.regionName && data.regionName.length > 255) {
-    errors.regionName = "Region name must not exceed 255 characters";
-  }
 
   if (data.umami !== null && (data.umami < 1 || data.umami > 5)) {
     errors.umami = "Umami rating must be between 1 and 5";

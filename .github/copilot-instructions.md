@@ -17,9 +17,8 @@ Matcha enthusiasts in Europe lack a specialized tool for systematically document
 The app will provide full **Create, Read, Update, and Delete (CRUD)** functionality for personal tasting notes.
 
 - **Create:** A form to add a new tasting entry.
-  - **Mandatory Fields:** Matcha Brand, Matcha Blend, Overall Rating (1-5 stars).
+  - **Mandatory Fields:** Matcha Brand, Matcha Blend, Region of Origin, Overall Rating (1-5 stars).
   - **Optional Fields:**
-    - Region of Origin (text field with autocomplete from user's history).
     - Structured Ratings (1-5 dots for `Umami`, `Bitter`, `Sweet`, `Foam Quality`).
     - Tasting Notes ("Notes as Koicha" and "Notes with Milk" in separate text fields).
     - Price Paid per 100g (in PLN).

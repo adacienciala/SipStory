@@ -43,7 +43,7 @@ export function TastingCard({ note, isCompareMode, isSelected, onSelect }: Tasti
   };
 
   const cardContent = (
-    <Card className="block transition-shadow hover:shadow-md">
+    <Card className="block transition-shadow hover:shadow-md" data-testid="tasting-note-card">
       <CardHeader>
         {isCompareMode && (
           <CardAction>

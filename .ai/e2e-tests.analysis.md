@@ -10,8 +10,8 @@
 
 This document provides a comprehensive analysis of which user flows should be tested with E2E tests for the SipStory MVP, based on:
 
-- Product Requirements Document (PRD)
-- Test Plan
+- Product Requirements Document (PRD) - #file:./prd.md
+- Test Plan - #file:./test-plan.md
 - Current codebase implementation
 - CI/CD requirements
 
@@ -216,7 +216,7 @@ Each flow was evaluated against:
 
 ### 2. Tasting Notes Management (CRUD)
 
-#### Flow 2A: Create Tasting Note (P0) ✅
+#### Flow 2A: Create Tasting Note (P0) ✅ COMPLETED
 
 **PRD Reference:** US-005, TC-CRUD-01, TC-CRUD-02, TC-CRUD-03  
 **Why Test:**
@@ -245,9 +245,25 @@ Each flow was evaluated against:
 - Tests API integration
 - Validates database insertion
 
-**Existing Coverage:** ✅ Partial coverage in `example-pom.spec.ts` (demonstrates pattern)
+**Existing Coverage:** ✅ **IMPLEMENTED** in `01-login-create-tasting.spec.ts` using POM pattern
 
-**Recommendation:** Need to create proper `01-login-create-tasting.spec.ts` using POM pattern. Previous implementation was incorrect and has been removed.
+**Implementation Details:**
+
+- 11 comprehensive test scenarios covering:
+  - Successful creation with mandatory fields only
+  - Successful creation with all fields
+  - Validation errors for empty form
+  - Validation errors for missing individual fields (brand, blend, rating)
+  - Cancel form functionality
+  - Submit button disabled state during submission
+  - All rating types (star and dot ratings)
+  - Page heading verification
+  - Complete step-by-step scenario
+- Uses LoginPage, DashboardPage, and TastingFormPage POMs
+- All components have proper data-testid attributes:
+  - TastingCard: `data-testid="tasting-note-card"`
+  - Form fields already have proper data-testid
+  - Rating inputs have data-testid for individual stars/dots
 
 ---
 
@@ -700,11 +716,11 @@ These three tests are explicitly required by PRD Section 3.5.3 for the CI/CD pip
 
 Per PRD Technical Requirements 3.5.3, the following must pass:
 
-1. ❌ **Login → Create a new tasting** (NEEDS REWRITE - previous implementation removed)
-2. ❌ **Get a tasting → Edit the tasting** (NEEDS REWRITE - previous implementation removed)
-3. ❌ **Get a tasting → Delete the tasting** (NEEDS REWRITE - previous implementation removed)
+1. ✅ **Login → Create a new tasting** - **IMPLEMENTED** in `01-login-create-tasting.spec.ts` (11 test scenarios)
+2. ❌ **Get a tasting → Edit the tasting** (NEEDS IMPLEMENTATION)
+3. ❌ **Get a tasting → Delete the tasting** (NEEDS IMPLEMENTATION)
 
-**Status:** 🔴🔴🔴 **BLOCKING MVP DEPLOYMENT** - These three tests are required before the application can be deployed to production per PRD requirements.
+**Status:** �� **PARTIALLY BLOCKING MVP DEPLOYMENT** - Two remaining tests are required before the application can be deployed to production per PRD requirements.
 
 **Additional Recommended Gates:** 4. 🔴 Protected route access (security) 5. 🔴 Comparison feature (core functionality)
 
@@ -804,8 +820,8 @@ The recommended E2E test suite should include:
 
 **🔴 CRITICAL - BLOCKING DEPLOYMENT (Phase 0):**
 
-- ❌ 3 CI/CD-required flows **MUST BE IMPLEMENTED IMMEDIATELY**
-  - `01-login-create-tasting.spec.ts` (rewrite using POM)
+- ✅ **COMPLETED** `01-login-create-tasting.spec.ts` (implemented using POM)
+- ❌ 2 CI/CD-required flows **MUST BE IMPLEMENTED**
   - `02-view-edit-tasting.spec.ts` (rewrite using POM)
   - `03-view-delete-tasting.spec.ts` (rewrite using POM)
 
@@ -830,16 +846,18 @@ The recommended E2E test suite should include:
 - Core dashboard features (filtering, comparison)
 - Security boundaries
 
-**Current Status:** 🔴 **DEPLOYMENT BLOCKED**
+**Current Status:** � **DEPLOYMENT PARTIALLY BLOCKED**
 
-- Current E2E coverage: **10% complete** (1 of 10 flows - login form only)
-- CI/CD required tests: **0% complete** (0 of 3)
-- The application **CANNOT be deployed** until the 3 CI/CD-required tests are properly implemented
+- Current E2E coverage: **20% complete** (2 of 10 flows - login form + create tasting)
+- CI/CD required tests: **33% complete** (1 of 3) ✅
+- The application **CANNOT be deployed** until the remaining 2 CI/CD-required tests are properly implemented
 
 **Immediate Action Required:**
 
-1. Rewrite the 3 CI/CD tests using Page Object Model pattern
-2. Follow patterns from `example-pom.spec.ts`
+1. ✅ ~~Implement `01-login-create-tasting.spec.ts` using POM pattern~~ **COMPLETED**
+2. Implement the 2 remaining CI/CD tests using Page Object Model pattern:
+   - `02-view-edit-tasting.spec.ts`
+   - `03-view-delete-tasting.spec.ts`
 3. Use existing POMs: LoginPage, DashboardPage, TastingFormPage
 4. Ensure all tests use data-testid selectors
 5. Verify tests pass consistently (run 10 times with 0 failures)

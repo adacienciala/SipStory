@@ -62,7 +62,9 @@ try {
         <div class="mb-6">
           <BackButton destination={`/tastings/${id}`} text="Back to Tasting Note" />
         </div>
-        <h1 class="mb-8 text-3xl font-bold text-gray-900">Edit Tasting Note</h1>
+        <h1 class="mb-8 text-3xl font-bold text-gray-900" data-testid="page-heading">
+          Edit Tasting Note
+        </h1>
         <TastingForm initialData={initialData} client:load />
       </div>
     ) : (

@@ -9,7 +9,7 @@ import { BasePage } from "./BasePage";
 export interface TastingFormData {
   brand: string;
   blend: string;
-  region?: string;
+  region: string;
   overallRating: number;
   umami?: number;
   bitter?: number;
@@ -71,7 +71,7 @@ export class TastingFormPage extends BasePage {
     this.cancelButton = this.getByTestId("cancel-button");
 
     // Page elements
-    this.pageHeading = this.getByRole("heading", { name: /tasting note/i });
+    this.pageHeading = this.getByTestId("page-heading");
     this.backButton = this.getByRole("link", { name: /back/i });
     this.errorMessages = this.page.locator(".text-red-500");
   }
@@ -96,8 +96,10 @@ export class TastingFormPage extends BasePage {
    * @param brand - Brand name
    */
   async fillBrand(brand: string): Promise<void> {
+    // Click the combobox button to open the popover
     await this.brandInput.click();
-    const input = this.page.getByRole("combobox", { name: /brand/i });
+    // Wait for popover to open and find the input inside
+    const input = this.page.getByPlaceholder(/search brand/i);
     await input.fill(brand);
     // Wait a bit for autocomplete to process
     await this.page.waitForTimeout(300);
@@ -108,8 +110,10 @@ export class TastingFormPage extends BasePage {
    * @param blend - Blend name
    */
   async fillBlend(blend: string): Promise<void> {
+    // Click the combobox button to open the popover
     await this.blendInput.click();
-    const input = this.page.getByRole("combobox", { name: /blend/i });
+    // Wait for popover to open and find the input inside
+    const input = this.page.getByPlaceholder(/search blend/i);
     await input.fill(blend);
     await this.page.waitForTimeout(300);
   }
@@ -119,8 +123,10 @@ export class TastingFormPage extends BasePage {
    * @param region - Region name
    */
   async fillRegion(region: string): Promise<void> {
+    // Click the combobox button to open the popover
     await this.regionInput.click();
-    const input = this.page.getByRole("combobox", { name: /region/i });
+    // Wait for popover to open and find the input inside
+    const input = this.page.getByPlaceholder(/search region/i);
     await input.fill(region);
     await this.page.waitForTimeout(300);
   }
@@ -225,10 +231,10 @@ export class TastingFormPage extends BasePage {
     // Required fields
     await this.fillBrand(data.brand);
     await this.fillBlend(data.blend);
+    await this.fillRegion(data.region);
     await this.setOverallRating(data.overallRating);
 
     // Optional fields
-    if (data.region) await this.fillRegion(data.region);
     if (data.umami) await this.setUmamiRating(data.umami);
     if (data.bitter) await this.setBitterRating(data.bitter);
     if (data.sweet) await this.setSweetRating(data.sweet);
@@ -309,11 +315,13 @@ export class TastingFormPage extends BasePage {
    * Fill form with minimum required fields only
    * @param brand - Brand name
    * @param blend - Blend name
+   * @param region - Region name
    * @param rating - Overall rating (1-5)
    */
-  async fillMinimumRequiredFields(brand: string, blend: string, rating: number): Promise<void> {
+  async fillMinimumRequiredFields(brand: string, blend: string, region: string, rating: number): Promise<void> {
     await this.fillBrand(brand);
     await this.fillBlend(blend);
+    await this.fillRegion(region);
     await this.setOverallRating(rating);
   }
 }

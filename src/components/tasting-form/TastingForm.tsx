@@ -110,7 +110,8 @@ export function TastingForm(props: TastingFormProps) {
           value={formData.regionName}
           onChange={handleRegionChange}
           suggestions={regions}
-          placeholder="Select or enter region (optional)"
+          placeholder="Select or enter region"
+          required
           disabled={isEditMode}
           error={errors.regionName}
           isLoading={isLoading && formData.brandId !== null}
@@ -235,11 +236,11 @@ export function TastingForm(props: TastingFormProps) {
             id="pricePln"
             type="number"
             value={formData.pricePln ?? ""}
-            onChange={(e) => handleInputChange("pricePln", e.target.value ? Number(e.target.value) : null)}
-            placeholder="0.00"
+            onChange={(e) => handleInputChange("pricePln", e.target.value ? parseInt(e.target.value, 10) : null)}
+            placeholder="0"
             disabled={isSubmitting}
             min="0"
-            step="0.01"
+            step="1"
             className={errors.pricePln ? "border-red-500 focus-visible:ring-red-500" : ""}
             data-testid="price-input"
           />
